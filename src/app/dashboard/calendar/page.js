@@ -267,7 +267,7 @@ export default function CalendarPage() {
           <Select
             label="Usługa"
             name="service"
-            options={services.map((s) => ({ value: s._id, label: s.name }))}
+            options={services?.map((s) => ({ value: s._id, label: s.name }))}
             value={form.service}
             onChange={(val) => handleChangeService(val)}
             required

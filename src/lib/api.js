@@ -169,9 +169,6 @@ export const updatePatient = (id, body) =>
 export const deletePatient = (id) =>
   request(`/api/patients/${id}`, { method: "DELETE" });
 
-export const getPatientAppointments = (id) =>
-  request(`/api/patients/${id}/appointments`);
-
 export const getPatientHistory = (id) => request(`/api/patients/${id}/history`);
 
 export const getPhysiotherapists = () =>
@@ -185,11 +182,34 @@ export const getTodayAppointments = () => request("/api/appointments/today");
 export const getAppointment = (id) =>
   request(`/api/appointments/${id}`, { method: "GET" });
 
+export const getPatientAppointments = (id) =>
+  request(`/api/appointments/patient/${id}`);
+
 export const createAppointment = (body) =>
   request("/api/appointments", { method: "POST", body });
 
 export const updateAppointment = (id, body) =>
   request(`/api/appointments/${id}`, { method: "PUT", body });
+
+export const updateAppointmentStatus = (id, status) =>
+  request(`/api/appointments/${id}/status`, {
+    method: "PUT",
+    body: { status },
+  });
+export const updateSoapNotes = (id, body) =>
+  request(`/api/appointments/${id}/soap-notes`, {
+    method: "PUT",
+    body,
+  });
+export const signAppointment = (id) =>
+  request(`/api/appointments/${id}/sign`, { method: "POST" });
+export const getTemplates = () =>
+  request("/api/appointments/templates", { method: "GET" });
+export const applyTemplate = (id, body) =>
+  request(`/api/appointments/${id}/apply-template`, {
+    method: "POST",
+    body,
+  });
 
 export const deleteAppointment = (id) =>
   request(`/api/appointments/${id}`, { method: "DELETE" });

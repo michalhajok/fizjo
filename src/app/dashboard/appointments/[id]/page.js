@@ -1,397 +1,415 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   getAppointment,
+  getIcd9Procedures,
   updateAppointment,
-  getAuditLogsForAppointment,
-  uploadAttachment,
+  updateAppointmentStatus,
+  signAppointment,
+  getTemplates,
+  applyTemplate,
 } from "@/lib/api";
+
 import Tabs from "@/components/ui/Tabs";
 import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
-import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import AuditTimeline from "@/components/ui/AuditTimeline";
-import { getIcd9Procedures } from "@/lib/api";
-import AutocompleteMultiSelect from "@/components/ui/AutocompleteMultiSelect";
+import Badge from "@/components/ui/Badge";
 
-const tabDefs = [
-  { key: "examinations", label: "Badania kliniczne/obserwacje" },
-  { key: "diagnoses", label: "Rozpoznania" },
-  { key: "procedures", label: "Procedury" },
-  { key: "attachments", label: "Załączniki" },
-  { key: "notes", label: "Notatki" },
-  { key: "plan", label: "Plan terapii" },
-  { key: "recommendations", label: "Zalecenia" },
-  { key: "history", label: "Historia zmian" },
+import InterviewTab from "@/components/appointments/InterviewTab";
+import ExaminationsTab from "@/components/appointments/ExaminationsTab";
+import PlanTab from "@/components/appointments/PlanTab";
+import CourseTab from "@/components/appointments/CourseTab";
+import DiagnosesTab from "@/components/appointments/DiagnosesTab";
+import AssessmentScalesTab from "@/components/appointments/AssessmentScalesTab";
+import HistoryTab from "@/components/appointments/HistoryTab";
+
+const statusColors = {
+  scheduled: "blue",
+  confirmed: "green",
+  "checked-in": "yellow",
+  "in-progress": "orange",
+  completed: "green",
+  cancelled: "red",
+  "no-show": "red",
+  rescheduled: "purple",
+};
+
+const statusLabels = {
+  scheduled: "Zaplanowana",
+  confirmed: "Potwierdzona",
+  "checked-in": "Przyjęty",
+  "in-progress": "W trakcie",
+  completed: "Zakończona",
+  cancelled: "Anulowana",
+  "no-show": "Nieobecność",
+  rescheduled: "Przełożona",
+};
+
+const tabs = [
+  { value: "interview", label: "Wywiad" },
+  { value: "examinations", label: "Badania" },
+  { value: "scales", label: "Skale oceny" },
+  { value: "diagnoses", label: "Rozpoznania" },
+  { value: "plan", label: "Plan leczenia" },
+  { value: "course", label: "Przebieg" },
+  { value: "history", label: "Historia" },
 ];
 
-export default function AppointmentDetails() {
+export default function AppointmentDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [tab, setTab] = useState("examinations");
-  const [data, setData] = useState(null);
-  const [logs, setLogs] = useState([]);
+  const [activeTab, setActiveTab] = useState("interview");
+  const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [auditLoading, setAuditLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-  const [icd9Options, setIcd9Options] = useState([]);
+  const [patientAppointments, setPatientAppointments] = useState([]);
 
-  // Ładuj dane wizyty, historię audytu
+  // Szablon i procedury
+  const [templates, setTemplates] = useState([]);
+  const [procedures, setProcedures] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
+  // Ładowanie danych
   useEffect(() => {
-    setLoading(true);
-    getAppointment(id).then((res) => {
-      setData(res.data?.data);
-      setLoading(false);
-    });
+    loadAppointment();
+    loadTemplates();
+    loadProcedures();
   }, [id]);
 
-  useEffect(() => {
-    if (tab === "history" && logs.length === 0) {
-      setAuditLoading(true);
-      getAuditLogsForAppointment(id)
-        .then((res) => {
-          setLogs(res.data?.logs || []);
-        })
-        .finally(() => setAuditLoading(false));
+  const loadAppointment = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await getAppointment(id);
+      if (error) {
+        setError(error);
+      } else {
+        setAppointment(data?.data);
+      }
+    } catch (err) {
+      setError("Błąd ładowania wizyty");
+    } finally {
+      setLoading(false);
     }
-  }, [tab, id, logs.length]);
+  };
 
-  useEffect(() => {
-    // Pobieraj wszystkie procedury (albo tylko na wyszukiwanie frazy)
-    getIcd9Procedures().then((res) => {
-      setIcd9Options(
-        (res.data?.data || []).map((proc) => ({
-          value: proc.code,
-          label: `${proc.code} - ${proc.name}`,
-        }))
+  const loadTemplates = async () => {
+    try {
+      const { data } = await getTemplates();
+      setTemplates(data || []);
+    } catch (err) {
+      console.error("Error loading templates:", err);
+    }
+  };
+
+  const loadProcedures = async () => {
+    try {
+      const { data } = await getIcd9Procedures();
+      setProcedures(data?.data || []);
+    } catch (err) {
+      console.error("Error loading procedures:", err);
+    }
+  };
+
+  // Zmiana statusu
+  const handleStatusChange = async (newStatus, reason = "") => {
+    try {
+      setSaving(true);
+      const { data, error } = await updateAppointmentStatus(id, {
+        status: newStatus,
+        reason,
+      });
+      if (error) {
+        setError(error);
+      } else {
+        console.log("Updated appointment data:", data);
+
+        setAppointment(data?.data);
+      }
+    } catch (err) {
+      setError("Błąd aktualizacji statusu");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Zastosowanie szablonu
+  const handleApplyTemplate = async (templateId) => {
+    try {
+      setSaving(true);
+      const { data, error } = await applyTemplate(id, { templateId });
+      if (error) {
+        setError(error);
+      } else {
+        setAppointment(data.appointment);
+        setSelectedTemplate(data.template);
+      }
+    } catch (err) {
+      setError("Błąd stosowania szablonu");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Cyfrowy podpis
+  const handleSign = async () => {
+    try {
+      setSaving(true);
+      // Wygeneruj hash z danych dokumentacji (w prawdziwej implementacji użyj odpowiedniej biblioteki)
+      const signatureHash = btoa(
+        JSON.stringify({
+          appointmentId: id,
+          timestamp: new Date().toISOString(),
+          userId: "current_user_id", // Pobierz z kontekstu
+        })
       );
-    });
-  }, []);
 
-  if (loading || !data) {
-    return <Spinner size="lg" text="Ładowanie wizyty…" />;
+      const { data, error } = await signAppointment(id, { signatureHash });
+      if (error) {
+        setError(error);
+      } else {
+        setAppointment(data?.data);
+      }
+    } catch (err) {
+      setError("Błąd podpisywania dokumentacji");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateAppointment = (updatedData) => {
+    setSaving(true);
+    updateAppointment(id, updatedData)
+      .then(({ data, error }) => {
+        if (error) {
+          setError(error);
+        } else {
+          setAppointment(data?.data);
+        }
+      })
+      .catch((err) => {
+        setError("Błąd aktualizacji wizyty");
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner size="lg" text="Ładowanie wizyty..." />
+      </div>
+    );
   }
 
-  // --- Edycja poszczególnych sekcji ---
-  const handleArrayChange = (section, idx, field, value) => {
-    setData((prev) => {
-      const arr = [...(prev[section] || [])];
-      arr[idx] = { ...arr[idx], [field]: value };
-      return { ...prev, [section]: arr };
-    });
-    setSuccess(false);
-    setError(null);
-  };
-
-  const handleArrayStringChange = (section, idx, value) => {
-    setData((prev) => {
-      const arr = [...(prev[section] || [])];
-      arr[idx] = value;
-      return { ...prev, [section]: arr };
-    });
-    setSuccess(false);
-    setError(null);
-  };
-
-  const handleArrayAdd = (section, defaultValue) => {
-    setData((prev) => ({
-      ...prev,
-      [section]: [...(prev[section] || []), defaultValue],
-    }));
-    setSuccess(false);
-    setError(null);
-  };
-
-  const handleArrayRemove = (section, idx) => {
-    setData((prev) => {
-      const arr = [...(prev[section] || [])];
-      arr.splice(idx, 1);
-      return { ...prev, [section]: arr };
-    });
-    setSuccess(false);
-    setError(null);
-  };
-
-  const handleSimpleChange = (field, value) => {
-    setData((prev) => ({ ...prev, [field]: value }));
-    setSuccess(false);
-    setError(null);
-  };
-
-  // --- Zapisywanie zmian ---
-  const handleSave = async () => {
-    setSaving(true);
-    setError(null);
-    setSuccess(false);
-    const updateFields = {
-      examinations: data.examinations,
-      diagnoses: data.diagnoses,
-      procedures: data.procedures,
-      attachments: data.attachments,
-      notes: data.notes,
-      therapyPlan: data.therapyPlan,
-      recommendations: data.recommendations,
-    };
-    const { error } = await updateAppointment(id, updateFields);
-    setSaving(false);
-    if (error) setError(error);
-    else setSuccess(true);
-  };
-
-  // --- Załączniki: prosty upload (stub, dopracuj z backendem!) ---
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const res = await uploadAttachment(id, file);
-    if (res?.success && res.data) {
-      setData((prev) => ({
-        ...prev,
-        attachments: [...(prev.attachments || []), res.data],
-      }));
-      setSuccess(true);
-    }
-  };
-
-  // --- Zakładki ---
-  return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-700">
-          Wizyta: {new Date(data.scheduledDateTime).toLocaleString("pl-PL")}
-        </h1>
-        <p className="text-gray-600">
-          Pacjent: {data.patient?.personalInfo?.firstName}{" "}
-          {data.patient?.personalInfo?.lastName} | Usługa: {data.service?.name}
-        </p>
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        <p>{error}</p>
+        <Button onClick={loadAppointment} className="mt-4">
+          Spróbuj ponownie
+        </Button>
       </div>
-      <Tabs
-        value={tab}
-        onChange={setTab}
-        tabs={tabDefs.map((t) => ({ value: t.key, label: t.label }))}
-      />
+    );
+  }
 
-      {/* KAŻDA SEKCJA (zakładka) */}
+  if (!appointment) {
+    return (
+      <div className="p-6 text-center">
+        <p>Wizyta nie została znaleziona</p>
+        <Button onClick={() => router.back()} className="mt-4">
+          Powrót
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* Header wizyty */}
       <Card>
         <Card.Content>
-          {tab === "examinations" && (
-            <section>
-              <h2 className="font-semibold mb-3">
-                Badania kliniczne / Obserwacje
-              </h2>
-              {(data.examinations ?? []).map((exam, i) => (
-                <div key={i} className="mb-2 flex gap-2">
-                  <Input
-                    placeholder="Nazwa badania"
-                    value={exam?.name || ""}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "examinations",
-                        i,
-                        "name",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    placeholder="Wynik / Notatka"
-                    value={exam?.result || ""}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "examinations",
-                        i,
-                        "result",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Button
-                    type="button"
-                    size="xs"
-                    onClick={() => handleArrayRemove("examinations", i)}
-                  >
-                    Usuń
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                size="sm"
-                onClick={() =>
-                  handleArrayAdd("examinations", { name: "", result: "" })
-                }
-              >
-                Dodaj badanie
-              </Button>
-            </section>
-          )}
-
-          {tab === "diagnoses" && (
-            <section>
-              <h2 className="font-semibold mb-3">Rozpoznania</h2>
-              {(data.diagnoses ?? []).map((diag, i) => (
-                <div key={i} className="mb-2 flex gap-2">
-                  <Input
-                    placeholder="Kod (np. ICD-10)"
-                    value={diag?.code || ""}
-                    onChange={(e) =>
-                      handleArrayChange("diagnoses", i, "code", e.target.value)
-                    }
-                  />
-                  <Input
-                    placeholder="Opis rozpoznania"
-                    value={diag?.description || ""}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "diagnoses",
-                        i,
-                        "description",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Button
-                    type="button"
-                    size="xs"
-                    onClick={() => handleArrayRemove("diagnoses", i)}
-                  >
-                    Usuń
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                size="sm"
-                onClick={() =>
-                  handleArrayAdd("diagnoses", { code: "", description: "" })
-                }
-              >
-                Dodaj rozpoznanie
-              </Button>
-            </section>
-          )}
-
-          {tab === "procedures" && (
-            <section>
-              <h2 className="font-semibold mb-3">Procedury</h2>
-              <AutocompleteMultiSelect
-                label="Procedury (ICD-9)"
-                options={icd9Options}
-                value={(data.procedures || [])
-                  .map((code) => icd9Options.find((o) => o.value === code))
-                  .filter(Boolean)}
-                onChange={(selected) =>
-                  setData((prev) => ({
-                    ...prev,
-                    procedures: selected.map((opt) => opt.value),
-                  }))
-                }
-                placeholder="Wyszukaj i wybierz procedury..."
-              />
-            </section>
-          )}
-
-          {tab === "attachments" && (
-            <section>
-              <h2 className="font-semibold mb-3">Załączniki / dokumenty</h2>
-              <div className="mb-2">
-                <input type="file" onChange={handleUpload} className="mb-2" />
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold mb-2">
+                Wizyta -{" "}
+                {new Date(appointment.scheduledDateTime).toLocaleString(
+                  "pl-PL"
+                )}
+              </h1>
+              <div className="space-y-1">
+                <p>
+                  <strong>Pacjent:</strong>{" "}
+                  {appointment.patient?.personalInfo.firstName}{" "}
+                  {appointment.patient?.personalInfo.lastName}
+                </p>
+                <p>
+                  <strong>Terapeuta:</strong>{" "}
+                  {appointment.physiotherapist?.personalInfo.firstName}{" "}
+                  {appointment.physiotherapist?.personalInfo.lastName}
+                </p>
+                <p>
+                  <strong>Usługa:</strong> {appointment?.service?.name}
+                </p>
+                <p>
+                  <strong>Czas trwania:</strong> {appointment.duration} min
+                </p>
               </div>
-              <ul className="space-y-2">
-                {(data.attachments ?? []).map((att, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <a
-                      href={att.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {att.filename || att.url}
-                    </a>
-                    <Button
-                      type="button"
-                      size="xs"
-                      onClick={() => handleArrayRemove("attachments", i)}
-                    >
-                      Usuń
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {tab === "notes" && (
-            <section>
-              <h2 className="font-semibold mb-3">Notatki z wizyty</h2>
-              <Textarea
-                label="Notatki"
-                value={data.notes || ""}
-                onChange={(e) => handleSimpleChange("notes", e.target.value)}
-                rows={8}
-              />
-            </section>
-          )}
-
-          {tab === "plan" && (
-            <section>
-              <h2 className="font-semibold mb-3">Plan terapii / cele</h2>
-              <Textarea
-                label="Plan terapii"
-                value={data.therapyPlan || ""}
-                onChange={(e) =>
-                  handleSimpleChange("therapyPlan", e.target.value)
-                }
-                rows={6}
-              />
-            </section>
-          )}
-
-          {tab === "recommendations" && (
-            <section>
-              <h2 className="font-semibold mb-3">Zalecenia domowe / opieka</h2>
-              <Textarea
-                label="Zalecenia"
-                value={data.recommendations || ""}
-                onChange={(e) =>
-                  handleSimpleChange("recommendations", e.target.value)
-                }
-                rows={6}
-              />
-            </section>
-          )}
-
-          {tab === "history" && (
-            <section>
-              <h2 className="font-semibold mb-3">Historia zmian (audit)</h2>
-              {auditLoading ? (
-                <Spinner size="md" text="Ładowanie historii..." />
-              ) : logs.length ? (
-                <AuditTimeline logs={logs} />
-              ) : (
-                <div className="text-gray-500">Brak historii.</div>
-              )}
-            </section>
-          )}
-
-          {/* Przycisk zapisu */}
-          {(tab !== "history" && (
-            <div className="flex justify-end gap-4 mt-6">
-              {error && <span className="text-red-600">{error}</span>}
-              {success && <span className="text-green-600">Zapisano!</span>}
-              <Button type="button" onClick={handleSave} loading={saving}>
-                Zapisz zmiany
-              </Button>
             </div>
-          )) ||
-            null}
+            <div className="flex flex-col items-end gap-2">
+              <Badge color={statusColors[appointment.status]}>
+                {statusLabels[appointment.status]}
+              </Badge>
+              {appointment.appointmentType !== "scheduled" && (
+                <Badge color="purple">{appointment.appointmentType}</Badge>
+              )}
+            </div>
+          </div>
+        </Card.Content>
+      </Card>
+
+      {/* Pasek akcji */}
+      <Card>
+        <Card.Content>
+          <div className="flex flex-wrap gap-2">
+            {/* Przyciski zmiany statusu */}
+            {appointment.status === "scheduled" && (
+              <Button
+                size="sm"
+                onClick={() => handleStatusChange("confirmed")}
+                disabled={saving}
+              >
+                Potwierdź
+              </Button>
+            )}
+            {appointment.status === "confirmed" && (
+              <Button
+                size="sm"
+                onClick={() => handleStatusChange("checked-in")}
+                disabled={saving}
+              >
+                Przyjmij pacjenta
+              </Button>
+            )}
+            {appointment.status === "checked-in" && (
+              <Button
+                size="sm"
+                onClick={() => handleStatusChange("in-progress")}
+                disabled={saving}
+              >
+                Rozpocznij wizytę
+              </Button>
+            )}
+
+            {/* Szablon */}
+            {templates.length > 0 && !appointment.template && (
+              <select
+                className="px-3 py-1 border rounded text-sm"
+                onChange={(e) =>
+                  e.target.value && handleApplyTemplate(e.target.value)
+                }
+                disabled={saving}
+              >
+                <option value="">Zastosuj szablon...</option>
+                {templates.map((template) => (
+                  <option key={template._id} value={template._id}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Podpis cyfrowy */}
+            {appointment.status === "in-progress" &&
+              !appointment.digitalSignature && (
+                <Button
+                  size="sm"
+                  variant="success"
+                  onClick={handleSign}
+                  disabled={saving}
+                >
+                  Podpisz i zakończ
+                </Button>
+              )}
+
+            {appointment.digitalSignature && (
+              <div className="text-sm text-green-600">
+                ✓ Podpisano przez{" "}
+                {appointment.digitalSignature.signedBy.firstName}{" "}
+                {appointment.digitalSignature.signedBy.lastName}
+                <br />
+                {new Date(appointment.digitalSignature.signedAt).toLocaleString(
+                  "pl-PL"
+                )}
+              </div>
+            )}
+          </div>
+        </Card.Content>
+      </Card>
+
+      {/* Zakładki */}
+      <Card>
+        <div className="border-b">
+          <Tabs value={activeTab} onChange={setActiveTab} tabs={tabs} />
+        </div>
+
+        <Card.Content>
+          {activeTab === "interview" && (
+            <InterviewTab
+              appointment={appointment}
+              onUpdate={handleUpdateAppointment}
+            />
+          )}
+
+          {activeTab === "scales" && (
+            <AssessmentScalesTab
+              appointment={appointment}
+              onUpdate={(scales) => {
+                // Implementuj aktualizację skal oceny
+              }}
+            />
+          )}
+
+          {activeTab === "diagnoses" && (
+            <DiagnosesTab
+              appointment={appointment}
+              onUpdate={handleUpdateAppointment}
+            />
+          )}
+
+          {activeTab === "examinations" && (
+            <ExaminationsTab
+              appointment={appointment}
+              onUpdate={handleUpdateAppointment}
+            />
+          )}
+
+          {activeTab === "plan" && (
+            <PlanTab
+              appointment={appointment}
+              onUpdate={handleUpdateAppointment}
+            />
+          )}
+
+          {activeTab === "course" && (
+            <CourseTab
+              appointment={appointment}
+              procedures={procedures}
+              onUpdate={handleUpdateAppointment}
+            />
+          )}
+
+          {activeTab === "history" && (
+            <HistoryTab
+              patientId={appointment?.patient._id}
+              appointmentsId={appointment._id}
+            />
+          )}
         </Card.Content>
       </Card>
     </div>

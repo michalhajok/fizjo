@@ -23,6 +23,8 @@ const statusOptions = [
 ];
 
 export default function AppointmentsPage() {
+  const today = new Date();
+  today.setDate(today.getDate() + 7);
   const { user, loading: authLoading } = useAuth();
   const { data, loading, error, refetch } = useApiFetch(
     getAppointments,
@@ -32,8 +34,10 @@ export default function AppointmentsPage() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [toDate, setToDate] = useState(today.toISOString().split("T")[0]);
 
   const appointments = data?.data || [];
 
@@ -87,6 +91,7 @@ export default function AppointmentsPage() {
         ({
           scheduled: "Zaplanowana",
           confirmed: "Potwierdzona",
+          "in-progress": "W trakcie",
           completed: "Zakończona",
           cancelled: "Anulowana",
           "no-show": "Nieobecność",
@@ -174,8 +179,8 @@ export default function AppointmentsPage() {
               onClick={() => {
                 setSearch("");
                 setStatus("all");
-                setFromDate("");
-                setToDate("");
+                setFromDate(new Date().toISOString().split("T")[0]);
+                setToDate(today.toISOString().split("T")[0]);
               }}
             >
               Wyczyść filtry

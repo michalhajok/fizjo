@@ -22,18 +22,33 @@ export default function PatientDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const statusLabels = {
+    scheduled: "Zaplanowana",
+    confirmed: "Potwierdzona",
+    "checked-in": "Przyjęty",
+    "in-progress": "W trakcie",
+    completed: "Zakończona",
+    cancelled: "Anulowana",
+    "no-show": "Nieobecność",
+    rescheduled: "Przełożona",
+  };
+
+  const getStatusLabel = (status) => {
+    return statusLabels[status] || status;
+  };
+
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     Promise.all([
       getPatient(id),
-      //getPatientAppointments(id),
+      getPatientAppointments(id),
       //getPatientHistory(id),
     ])
       .then(([patRes, appRes, histRes]) => {
         if (mounted) {
           setPatient(patRes.data.data || patRes.data);
-          // setAppointments(appRes.data?.appointments || []);
+          setAppointments(appRes.data?.data || []);
           // setHistory(histRes.data?.history || []);
           setError(null);
         }
@@ -46,9 +61,6 @@ export default function PatientDetailsPage() {
       mounted = false;
     };
   }, [id]);
-
-  console.log("Patient Details:", patient);
-  console.log(error);
 
   if (loading) {
     return (
@@ -241,7 +253,9 @@ export default function PatientDetailsPage() {
                       {apt.scheduledDateTime &&
                         new Date(apt.scheduledDateTime).toLocaleString("pl-PL")}
                     </span>
-                    <span className="ml-2 text-gray-600">{apt.status}</span>
+                    <span className="ml-2 text-gray-600">
+                      {getStatusLabel(apt.status)}
+                    </span>
                   </div>
                   <div className="text-sm text-gray-700">
                     {apt.service?.name}
