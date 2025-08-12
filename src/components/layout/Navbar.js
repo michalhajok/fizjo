@@ -21,14 +21,11 @@ const Navbar = ({ onMenuClick }) => {
   }
 
   return (
-    <nav className="flex h-16 items-center justify-between bg-white border-b border-gray-200 px-4 lg:px-6">
-      <button
-        onClick={onMenuClick}
-        className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        aria-label="Otwórz menu"
-      >
+    <nav className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+      <button onClick={onMenuClick} className="p-2">
+        {/* Hamburger icon */}
         <svg
-          className="h-6 w-6"
+          className="w-6 h-6 text-gray-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -42,11 +39,12 @@ const Navbar = ({ onMenuClick }) => {
         </svg>
       </button>
 
-      <h1 className="text-lg font-medium text-gray-700">
-        Panel fizjoterapeuty
-      </h1>
-
-      <Avatar name={user.firstName + " " + user.lastName} size="sm" />
+      <div className="flex items-center space-x-4">
+        <span className="text-gray-700">
+          Panel – {user.firstName} {user.lastName}
+        </span>
+        <Avatar src={user.avatar} name={`${user.firstName} ${user.lastName}`} />
+      </div>
     </nav>
   );
 };

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks";
-import useApiFetch from "@/hooks/useApiFetch";
 import { logOut } from "@/lib/api";
 
 const NAV = [
@@ -133,7 +132,11 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
 
-  useApiFetch;
+  const handleLogout = async () => {
+    await logOut();
+    // Po wylogowaniu przekieruj na stronę logowania
+    window.location.href = "/signin";
+  };
 
   if (loading || !user) {
     return (
@@ -149,43 +152,38 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="bg-white w-64 border-r border-gray-200 min-h-screen flex flex-col">
-      <div className="h-16 flex items-center px-6 font-bold text-blue-600 text-xl border-b border-gray-100">
+    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="text-gray-600 px-6 py-4 text-lg font-bold text-medical-primary">
         FizjoCare
       </div>
-      <nav className="flex-1 py-6 px-2 space-y-1">
-        {NAV.filter((item) => item.roles.includes(user.role)).map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center px-4 py-2 rounded-md transition-colors
-                ${
-                  active
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-gray-700 hover:bg-gray-100"
-                }
-              `}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {item.label}
-            </Link>
-          );
-        })}
-        <Link
-          href={"/signin"}
-          onClick={() => logOut()}
-          className={
-            "flex items-center px-4 py-2 rounded-md transition-colors text-gray-700 hover:bg-gray-100"
-          }
-        >
-          Wyloguj się
-        </Link>
+      <nav className="flex-1 px-4 space-y-1">
+        {NAV.map(
+          ({ href, label, icon, roles }) =>
+            roles.includes(user.role) && (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 ${
+                  pathname === href ? "bg-gray-100 font-semibold" : ""
+                }`}
+              >
+                {icon}
+                <span className="ml-2">{label}</span>
+              </Link>
+            )
+        )}
       </nav>
-      <div className="p-4 text-xs text-gray-400">
-        &copy; {new Date().getFullYear()} FizjoCare
+
+      <div className="px-4 py-4 border-t border-gray-200">
+        <button
+          onClick={handleLogout}
+          className="w-full text-left text-sm text-red-600 hover:text-red-800"
+        >
+          Wyloguj
+        </button>
+        <div className="mt-2 text-xs text-gray-400">
+          © {new Date().getFullYear()} FizjoCare
+        </div>
       </div>
     </aside>
   );
