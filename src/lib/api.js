@@ -1,5 +1,3 @@
-import { useAuth } from "@/hooks/";
-
 async function request(
   url,
   { method = "GET", body, headers = {}, skipRefresh = false } = {}

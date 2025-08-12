@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import Input from "@/ui/Input";
-import Button from "@/ui/Button";
-import { ToastProvider, useToast } from "@/ui/Toast";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import AuthCard from "@/components/auth/AuthCard";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
 import { signIn } from "@/lib/api";
 import { useAuth } from "@/hooks";
 
@@ -72,7 +72,7 @@ function SignInPage() {
       if (data.success) {
         toast.success("Zalogowano pomyślnie!");
       } else {
-        toast.error(error || "Błąd logowania");
+        toast.error(data?.error || "Błąd logowania");
       }
     } catch (e) {
       toast.error("Wystąpił błąd połączenia");
