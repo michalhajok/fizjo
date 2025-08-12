@@ -23,7 +23,6 @@ const Navbar = ({ onMenuClick }) => {
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
       <button onClick={onMenuClick} className="p-2">
-        {/* Hamburger icon */}
         <svg
           className="w-6 h-6 text-gray-600"
           fill="none"
@@ -48,5 +47,4 @@ const Navbar = ({ onMenuClick }) => {
     </nav>
   );
 };
-
 export default Navbar;
