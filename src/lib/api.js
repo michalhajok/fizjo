@@ -296,3 +296,25 @@ export const updateUser = (id, body) =>
 export const getEmployee = (id) => request(`/api/employees/${id}`);
 export const updateEmployee = (id, body) =>
   request(`/api/employees/${id}`, { method: "PUT", body });
+
+export const withErrorHandling = (apiFunction) => {
+  return async (...args) => {
+    try {
+      const result = await apiFunction(...args);
+      return result;
+    } catch (error) {
+      console.error(`API Error in ${apiFunction.name}:`, error);
+
+      // Log to external service in production
+      if (process.env.NODE_ENV === "production") {
+        // Sentry.captureException(error);
+      }
+
+      return {
+        data: null,
+        error: "Wystąpił błąd połączenia. Spróbuj ponownie.",
+        status: 500,
+      };
+    }
+  };
+};
