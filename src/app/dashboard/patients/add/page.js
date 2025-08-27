@@ -285,7 +285,7 @@ export default function AddPatientPage() {
                   label="Płeć *"
                   value={form.personalInfo.gender}
                   onChange={(e) =>
-                    handleInputChange("personalInfo", "gender", e.target.value)
+                    handleInputChange("personalInfo", "gender", e)
                   }
                   options={genderOptions}
                   error={errors["personalInfo.gender"]}
