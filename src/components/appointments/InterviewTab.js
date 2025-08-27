@@ -16,6 +16,7 @@ export default function InterviewTab({ appointment, onUpdate }) {
       currentAilments: "",
       earlierTreatment: "",
       styleLife: "",
+      age: "",
       physicalActivity: "",
       diet: "",
       work: "",
@@ -131,7 +132,13 @@ export default function InterviewTab({ appointment, onUpdate }) {
               rows={2}
               placeholder="Tryb życia, nawyki..."
             />
-
+            <Textarea
+              label="Wiek"
+              value={interview.age}
+              onChange={(e) => handleChange("age", e.target.value)}
+              rows={2}
+              placeholder="Wiek..."
+            />
             <Textarea
               label="Aktywność fizyczna"
               value={interview.physicalActivity}

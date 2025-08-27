@@ -65,7 +65,6 @@ export default function AppointmentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-
   // Szablon i procedury
   const [procedures, setProcedures] = useState([]);
 

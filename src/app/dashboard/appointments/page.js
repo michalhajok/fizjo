@@ -12,6 +12,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import DataTable from "@/components/ui/DataTable";
 import Spinner from "@/components/ui/Spinner";
+import AddAppointment from "@/components/modal/AddAppointment";
 
 const statusOptions = [
   { value: "all", label: "Wszystkie" },
@@ -38,6 +39,9 @@ export default function AppointmentsPage() {
     new Date().toISOString().split("T")[0]
   );
   const [toDate, setToDate] = useState(today.toISOString().split("T")[0]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const appointments = data?.data || [];
 
@@ -134,7 +138,7 @@ export default function AppointmentsPage() {
     <div className="space-y-6 p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-700">Wizyty</h1>
-        <Button onClick={() => {}}>
+        <Button onClick={() => setIsModalOpen(true)}>
           {/* Możesz przekierować np. do nowej strony lub otworzyć modal */}
           Dodaj wizytę
         </Button>
@@ -197,6 +201,11 @@ export default function AppointmentsPage() {
           />
         </Card.Content>
       </Card>
+      <AddAppointment
+        isModalOpen={isModalOpen}
+        handleCloseModal={handleCloseModal}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }
