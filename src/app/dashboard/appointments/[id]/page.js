@@ -8,8 +8,6 @@ import {
   updateAppointment,
   updateAppointmentStatus,
   signAppointment,
-  getTemplates,
-  applyTemplate,
 } from "@/lib/api";
 
 import Tabs from "@/components/ui/Tabs";
@@ -67,17 +65,13 @@ export default function AppointmentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [patientAppointments, setPatientAppointments] = useState([]);
 
   // Szablon i procedury
-  const [templates, setTemplates] = useState([]);
   const [procedures, setProcedures] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   // Ładowanie danych
   useEffect(() => {
     loadAppointment();
-    loadTemplates();
     loadProcedures();
   }, [id]);
 
@@ -94,15 +88,6 @@ export default function AppointmentDetailPage() {
       setError("Błąd ładowania wizyty");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadTemplates = async () => {
-    try {
-      const { data } = await getTemplates();
-      setTemplates(data || []);
-    } catch (err) {
-      console.error("Error loading templates:", err);
     }
   };
 
@@ -137,23 +122,23 @@ export default function AppointmentDetailPage() {
     }
   };
 
-  // Zastosowanie szablonu
-  const handleApplyTemplate = async (templateId) => {
-    try {
-      setSaving(true);
-      const { data, error } = await applyTemplate(id, { templateId });
-      if (error) {
-        setError(error);
-      } else {
-        setAppointment(data.appointment);
-        setSelectedTemplate(data.template);
-      }
-    } catch (err) {
-      setError("Błąd stosowania szablonu");
-    } finally {
-      setSaving(false);
-    }
-  };
+  // // Zastosowanie szablonu
+  // const handleApplyTemplate = async (templateId) => {
+  //   try {
+  //     setSaving(true);
+  //     const { data, error } = await applyTemplate(id, { templateId });
+  //     if (error) {
+  //       setError(error);
+  //     } else {
+  //       setAppointment(data.appointment);
+  //       setSelectedTemplate(data.template);
+  //     }
+  //   } catch (err) {
+  //     setError("Błąd stosowania szablonu");
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   // Cyfrowy podpis
   const handleSign = async () => {
@@ -304,24 +289,6 @@ export default function AppointmentDetailPage() {
               >
                 Rozpocznij wizytę
               </Button>
-            )}
-
-            {/* Szablon */}
-            {templates.length > 0 && !appointment.template && (
-              <select
-                className="px-3 py-1 border rounded text-sm"
-                onChange={(e) =>
-                  e.target.value && handleApplyTemplate(e.target.value)
-                }
-                disabled={saving}
-              >
-                <option value="">Zastosuj szablon...</option>
-                {templates.map((template) => (
-                  <option key={template._id} value={template._id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
             )}
 
             {/* Podpis cyfrowy */}

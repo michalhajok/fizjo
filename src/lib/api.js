@@ -253,10 +253,12 @@ export const uploadAttachment = async (appointmentId, file) => {
   return data;
 };
 
-export const getIcd9Procedures = (search = "") =>
-  request(`/api/icd9${search ? "?search=" + encodeURIComponent(search) : ""}`, {
-    method: "GET",
-  });
+// export const getIcd9Procedures = (search = "") =>
+//   request(`/api/icd9${search ? "?search=" + encodeURIComponent(search) : ""}`, {
+//     method: "GET",
+//   });
+
+export const getIcd9Procedures = (search = "") => request(`/api/icd9`);
 
 // STATS
 export const getWeeklyStats = () => request("/api/stats/weekly");
