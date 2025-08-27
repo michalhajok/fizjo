@@ -35,13 +35,13 @@ export default function AdminDashboardPage() {
   const tiles = [
     {
       href: "/dashboard/admin/users",
-      title: "Użytkownicy",
-      desc: "Zarządzaj kontami pracowników",
+      title: "Zarządzanie użytkownikami",
+      desc: "Dodawaj, edytuj i usuwaj konta",
       color: "blue",
     },
     {
       href: "/dashboard/admin/services",
-      title: "Usługi",
+      title: "Zarządzanie usługami",
       desc: "Twórz i edytuj usługi gabinetu",
       color: "green",
     },

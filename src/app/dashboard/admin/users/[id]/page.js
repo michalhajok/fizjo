@@ -9,14 +9,13 @@ import {
   getEmployee,
   updateEmployee,
 } from "@/lib/api";
-import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import Select from "@/components/ui/Select";
-import Checkbox from "@/components/ui/Checkbox";
 import Badge from "@/components/ui/Badge";
 import Tabs from "@/components/ui/Tabs";
+import ScheduleManager from "@/components/admin/ScheduleManager";
+import EmployeeTab from "@/components/admin/EmployeeTab";
+import UserTab from "@/components/admin/UserTab";
 
 const roleOptions = [
   { value: "admin", label: "Administrator" },
@@ -45,8 +44,8 @@ export default function UserDetailsPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [tab, setTab] = useState("user");
-
-  console.log(employee);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -208,422 +207,41 @@ export default function UserDetailsPage() {
         ]}
       />
       {tab === "user" && (
-        <Card>
-          <Card.Header>
-            <Card.Title>Dane użytkownika</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label="Imię"
-                  name="firstName"
-                  value={form.firstName}
-                  onChange={handleChange}
-                  required
-                />
-                <Input
-                  label="Nazwisko"
-                  name="lastName"
-                  value={form.lastName}
-                  onChange={handleChange}
-                  required
-                />
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-                <Input
-                  label="Telefon"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                />
-                <Select
-                  label="Rola"
-                  options={roleOptions}
-                  value={roleOptions.find((o) => o.value === form.role)}
-                  onChange={handleRoleChange}
-                  required
-                />
-                <div className="flex items-center gap-2 mt-2">
-                  <Checkbox
-                    checked={form.isActive}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        isActive: e.target.checked,
-                      }))
-                    }
-                  />
-                  <span>Aktywny użytkownik</span>
-                </div>
-              </div>
-              <div className="mt-6">
-                <div className="font-semibold mb-2">Uprawnienia:</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {availablePermissions.map((perm) => (
-                    <label key={perm.name} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={form.permissions.includes(perm.name)}
-                        onChange={() => handlePermissionToggle(perm.name)}
-                      />
-                      <span>{perm.displayName || perm.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              {error && (
-                <div className="text-red-600 bg-red-50 p-2 rounded">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="text-green-600 bg-green-50 p-2 rounded">
-                  Zmiany zostały zapisane!
-                </div>
-              )}
-              <div className="flex justify-end gap-4 mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  disabled={saving}
-                >
-                  Anuluj
-                </Button>
-                <Button type="submit" loading={saving}>
-                  Zapisz zmiany
-                </Button>
-              </div>
-            </form>
-          </Card.Content>
-        </Card>
+        <UserTab
+          error={error}
+          saving={saving}
+          success={success}
+          handleSubmit={handleSubmit}
+          form={form}
+          handleChange={handleChange}
+          handleRoleChange={handleRoleChange}
+          availablePermissions={availablePermissions}
+          handlePermissionToggle={handlePermissionToggle}
+          roleOptions={roleOptions}
+        />
       )}
       {tab === "employee" && employee && employee.personalInfo && (
-        <Card>
-          <Card.Header>
-            <Card.Title>Dane pracownika</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Dane osobowe */}
-              <div>
-                <h3 className="font-semibold mb-2">Informacje osobowe</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Imię"
-                    value={employee.personalInfo.firstName ?? ""}
-                    onChange={(e) =>
-                      handleEmployeeChange(
-                        "personalInfo",
-                        "firstName",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Nazwisko"
-                    value={employee.personalInfo?.lastName || ""}
-                    onChange={(e) =>
-                      handleEmployeeChange(
-                        "personalInfo",
-                        "lastName",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Data urodzenia"
-                    type="date"
-                    value={
-                      employee.personalInfo?.dateOfBirth?.slice(0, 10) || ""
-                    }
-                    onChange={(e) =>
-                      handleEmployeeChange(
-                        "personalInfo",
-                        "dateOfBirth",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Select
-                    label="Płeć"
-                    options={[
-                      { value: "M", label: "Mężczyzna" },
-                      { value: "F", label: "Kobieta" },
-                      { value: "Other", label: "Inna" },
-                    ]}
-                    value={{
-                      value: employee.personalInfo?.gender,
-                      label: employee.personalInfo?.gender,
-                    }}
-                    onChange={(o) =>
-                      handleEmployeeChange("personalInfo", "gender", o.value)
-                    }
-                  />
-                  <Input
-                    label="Telefon"
-                    value={employee.personalInfo?.contact?.phone || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "contact",
-                        "phone",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Email"
-                    value={employee.personalInfo?.contact?.email || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "contact",
-                        "email",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                  <Input
-                    label="Ulica"
-                    value={employee.personalInfo?.address?.street || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "address",
-                        "street",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Miasto"
-                    value={employee.personalInfo?.address?.city || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "address",
-                        "city",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Kod pocztowy"
-                    value={employee.personalInfo?.address?.postalCode || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "address",
-                        "postalCode",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    label="Kraj"
-                    value={employee.personalInfo?.address?.country || ""}
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "address",
-                        "country",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-                <div className="mt-2">
-                  <Input
-                    label="Osoba do kontaktu w nagłych wypadkach"
-                    value={
-                      employee.personalInfo?.contact?.emergencyContact?.name ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "contact",
-                        "emergencyContact",
-                        {
-                          ...employee.personalInfo?.contact?.emergencyContact,
-                          name: e.target.value,
-                        }
-                      )
-                    }
-                  />
-                  <Input
-                    label="Telefon ICE"
-                    value={
-                      employee.personalInfo?.contact?.emergencyContact?.phone ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "contact",
-                        "emergencyContact",
-                        {
-                          ...employee.personalInfo?.contact?.emergencyContact,
-                          phone: e.target.value,
-                        }
-                      )
-                    }
-                  />
-                  <Input
-                    label="Relacja ICE"
-                    value={
-                      employee.personalInfo?.contact?.emergencyContact
-                        ?.relationship || ""
-                    }
-                    onChange={(e) =>
-                      handleEmployeeNestedChange(
-                        "personalInfo",
-                        "contact",
-                        "emergencyContact",
-                        {
-                          ...employee.personalInfo?.contact?.emergencyContact,
-                          relationship: e.target.value,
-                        }
-                      )
-                    }
-                  />
-                </div>
-              </div>
-              {/* Dane zawodowe */}
-              <div>
-                <h3 className="font-semibold mb-2">Informacje zawodowe</h3>
-                <Input
-                  label="Stanowisko"
-                  value={employee.professionalInfo?.position || ""}
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "professionalInfo",
-                      "position",
-                      e.target.value
-                    )
-                  }
-                />
-                <Input
-                  label="Specjalizacje (przecinek)"
-                  value={
-                    employee.professionalInfo?.specializations?.join(", ") || ""
-                  }
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "professionalInfo",
-                      "specializations",
-                      e.target.value.split(",").map((s) => s.trim())
-                    )
-                  }
-                />
-                <Input
-                  label="Biografia"
-                  as="textarea"
-                  value={employee.professionalInfo?.biography || ""}
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "professionalInfo",
-                      "biography",
-                      e.target.value
-                    )
-                  }
-                  rows={3}
-                />
-                <Input
-                  label="Lata doświadczenia"
-                  type="number"
-                  value={employee.professionalInfo?.yearsOfExperience || ""}
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "professionalInfo",
-                      "yearsOfExperience",
-                      e.target.value
-                    )
-                  }
-                />
-                {/* Możesz dodać edycję licencji, edukacji, certyfikatów */}
-              </div>
-              {/* Informacje o zatrudnieniu */}
-              <div>
-                <h3 className="font-semibold mb-2">
-                  Informacje o zatrudnieniu
-                </h3>
-                <Input
-                  label="Data zatrudnienia"
-                  type="date"
-                  value={
-                    employee.employmentInfo?.employmentDate?.slice(0, 10) || ""
-                  }
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "employmentInfo",
-                      "employmentDate",
-                      e.target.value
-                    )
-                  }
-                />
-                <Select
-                  label="Typ umowy"
-                  options={contractTypes}
-                  value={contractTypes.find(
-                    (o) => o.value === employee.employmentInfo?.contractType
-                  )}
-                  onChange={(o) =>
-                    handleEmployeeChange(
-                      "employmentInfo",
-                      "contractType",
-                      o.value
-                    )
-                  }
-                />
-                <Input
-                  label="Dział"
-                  value={employee.employmentInfo?.department || ""}
-                  onChange={(e) =>
-                    handleEmployeeChange(
-                      "employmentInfo",
-                      "department",
-                      e.target.value
-                    )
-                  }
-                />
-              </div>
-              {error && (
-                <div className="text-red-600 bg-red-50 p-2 rounded">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="text-green-600 bg-green-50 p-2 rounded">
-                  Zmiany zostały zapisane!
-                </div>
-              )}
-              <div className="flex justify-end gap-4 mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  disabled={saving}
-                >
-                  Anuluj
-                </Button>
-                <Button type="submit" loading={saving}>
-                  Zapisz zmiany
-                </Button>
-              </div>
-            </form>
-          </Card.Content>
-        </Card>
+        <EmployeeTab
+          employee={employee}
+          error={error}
+          saving={saving}
+          success={success}
+          setShowScheduleModal={setShowScheduleModal}
+          contractTypes={contractTypes}
+          handleSubmit={handleSubmit}
+          handleEmployeeChange={handleEmployeeChange}
+          handleEmployeeNestedChange={handleEmployeeNestedChange}
+        />
       )}
+
+      <ScheduleManager
+        showScheduleModal={showScheduleModal}
+        employeeId={employee._id}
+        onClose={() => {
+          setShowScheduleModal(false);
+          setSelectedEmployee(null);
+        }}
+      />
     </div>
   );
 }

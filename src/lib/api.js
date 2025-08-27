@@ -209,6 +209,17 @@ export const applyTemplate = (id, body) =>
     body,
   });
 
+export const getAvailableSlots = (therapistId, date, duration) => {
+  return request(
+    `/api/appointments/slots?therapist=${therapistId}&date=${date}&duration=${duration}`
+  );
+};
+
+export const getTherapistSchedule = (therapistId, date) => {
+  const dateStr = date.toISOString().split("T");
+  return request(`/api/therapists/${therapistId}/schedule?date=${dateStr}`);
+};
+
 export const deleteAppointment = (id) =>
   request(`/api/appointments/${id}`, { method: "DELETE" });
 
@@ -296,6 +307,15 @@ export const updateUser = (id, body) =>
 export const getEmployee = (id) => request(`/api/employees/${id}`);
 export const updateEmployee = (id, body) =>
   request(`/api/employees/${id}`, { method: "PUT", body });
+
+export const getEmployeeSchedule = (id) =>
+  request(`/api/employees/${id}/schedule`);
+
+export const updateEmployeeSchedule = (id, schedule) =>
+  request(`/api/employees/${id}/schedule`, {
+    method: "PUT",
+    body: { schedule },
+  });
 
 export const withErrorHandling = (apiFunction) => {
   return async (...args) => {

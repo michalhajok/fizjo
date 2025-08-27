@@ -1,14 +1,11 @@
-// src/app/dashboard/admin/audit-logs/page.js
 "use client";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks";
-import useApiFetch from "@/hooks/useApiFetch";
 import { getAuditLogs } from "@/lib/api";
 import Card from "@/components/ui/Card";
 import Spinner from "@/components/ui/Spinner";
 import DataTable from "@/components/ui/DataTable";
-import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 
 export default function AuditLogsPage() {
@@ -78,8 +75,6 @@ export default function AuditLogsPage() {
     })),
   ];
 
-  console.log(filtered[0]?.userId.firstName);
-
   const columns = [
     { key: "timestamp", label: "Data i czas" },
     {
@@ -93,11 +88,6 @@ export default function AuditLogsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-700">Rejestr zdarzeń</h1>
-        <Button onClick={refetch}>Odśwież</Button>
-      </header> */}
-
       <Card>
         <Card.Content className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
@@ -134,7 +124,7 @@ export default function AuditLogsPage() {
         <Card.Content>
           <DataTable
             data={filtered.map((log) => ({
-              timestamp: new Date(log.createdAt).toLocaleString("pl-PL"),
+              timestamp: new Date(log.timestamp).toLocaleString("pl-PL"),
               user: `${log.userId?.firstName || ""} ${
                 log.userId?.lastName || ""
               }`,

@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks";
-import { createPatient } from "@/lib/api";
+import { getPatient, updatePatient } from "@/lib/api";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -16,9 +17,15 @@ const genderOptions = [
   { value: "Other", label: "Inna" },
 ];
 
-export default function AddPatientPage() {
-  const { user, loading: authLoading } = useAuth();
+const statusOptions = [
+  { value: true, label: "Aktywny" },
+  { value: false, label: "Nieaktywny" },
+];
+
+export default function EditPatientPage() {
+  const { id } = useParams();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
 
   const [form, setForm] = useState({
     personalInfo: {
@@ -46,13 +53,16 @@ export default function AddPatientPage() {
       medicalHistory: [],
       specialNotes: "",
     },
+    isActive: true,
   });
 
+  const [originalPatient, setOriginalPatient] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
 
-  // Nowe state dla dynamicznych list
+  // State dla dynamicznych list
   const [newAllergy, setNewAllergy] = useState("");
   const [newCondition, setNewCondition] = useState("");
   const [newHistory, setNewHistory] = useState("");
@@ -62,10 +72,78 @@ export default function AddPatientPage() {
     frequency: "",
   });
 
-  if (authLoading) {
+  // Załaduj dane pacjenta
+  useEffect(() => {
+    const loadPatient = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await getPatient(id);
+
+        if (error) {
+          setApiError(error);
+          return;
+        }
+
+        const patient = data.data || data;
+        setOriginalPatient(patient);
+
+        // Wypełnij formularz danymi pacjenta
+        setForm({
+          personalInfo: {
+            firstName: patient.personalInfo?.firstName || "",
+            lastName: patient.personalInfo?.lastName || "",
+            pesel: patient.personalInfo?.pesel || "",
+            dateOfBirth: patient.personalInfo?.dateOfBirth
+              ? patient.personalInfo.dateOfBirth.split("T")[0]
+              : "",
+            gender: patient.personalInfo?.gender || "",
+            contact: {
+              phone: patient.personalInfo?.contact?.phone || "",
+              email: patient.personalInfo?.contact?.email || "",
+            },
+          },
+          address: {
+            street: patient.address?.street || "",
+            city: patient.address?.city || "",
+            state: patient.address?.state || "",
+            zipCode: patient.address?.zipCode || "",
+            country: patient.address?.country || "Polska",
+          },
+          medicalInfo: {
+            allergies: patient.medicalInfo?.allergies || [],
+            medications: patient.medicalInfo?.medications || [],
+            chronicConditions: patient.medicalInfo?.chronicConditions || [],
+            medicalHistory: patient.medicalInfo?.medicalHistory || [],
+            specialNotes: patient.medicalInfo?.specialNotes || "",
+          },
+          isActive: patient.isActive !== false,
+        });
+      } catch (err) {
+        console.error("Error loading patient:", err);
+        setApiError("Błąd ładowania danych pacjenta");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) loadPatient();
+  }, [id]);
+
+  if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner />
+        <Spinner text="Ładowanie danych pacjenta..." />
+      </div>
+    );
+  }
+
+  if (apiError && !originalPatient) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        {apiError}
+        <Button onClick={() => router.back()} className="ml-4">
+          Wróć
+        </Button>
       </div>
     );
   }
@@ -95,10 +173,11 @@ export default function AddPatientPage() {
     });
 
     // Wyczyść błąd dla tego pola
-    if (errors[`${section}.${field}${subField ? `.${subField}` : ""}`]) {
+    const errorKey = `${section}.${field}${subField ? `.${subField}` : ""}`;
+    if (errors[errorKey]) {
       setErrors((prev) => ({
         ...prev,
-        [`${section}.${field}${subField ? `.${subField}` : ""}`]: null,
+        [errorKey]: null,
       }));
     }
   };
@@ -194,31 +273,67 @@ export default function AddPatientPage() {
     setApiError(null);
 
     try {
-      const { data, error } = await createPatient(form);
+      const { data, error } = await updatePatient(id, form);
 
       if (error) {
         setApiError(error);
       } else {
-        router.push("/patients");
+        router.push(`/dashboard/patients/${id}/view`);
       }
     } catch (err) {
-      setApiError("Wystąpił błąd podczas zapisywania pacjenta");
+      setApiError("Wystąpił błąd podczas zapisywania zmian");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const hasChanges = () => {
+    if (!originalPatient) return false;
+    return (
+      JSON.stringify(form) !==
+      JSON.stringify({
+        personalInfo: originalPatient.personalInfo,
+        address: originalPatient.address || {},
+        medicalInfo: originalPatient.medicalInfo || {},
+        isActive: originalPatient.isActive !== false,
+      })
+    );
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-4xl mx-auto">
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            Dodaj nowego pacjenta
-          </h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Edytuj pacjenta: {originalPatient?.personalInfo?.firstName}{" "}
+              {originalPatient?.personalInfo?.lastName}
+            </h1>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Status:</span>
+              <Select
+                value={form.isActive}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    isActive: e.target.value === "true",
+                  }))
+                }
+                options={statusOptions}
+                className="w-32"
+              />
+            </div>
+          </div>
 
           {apiError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
               <p className="text-red-800">{apiError}</p>
+            </div>
+          )}
+
+          {hasChanges() && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-blue-800">⚠️ Masz niezapisane zmiany</p>
             </div>
           )}
 
@@ -403,6 +518,13 @@ export default function AddPatientPage() {
                     onChange={(e) => setNewAllergy(e.target.value)}
                     placeholder="Dodaj alergię..."
                     className="flex-1"
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(),
+                      addToList("medicalInfo", "allergies", newAllergy, () =>
+                        setNewAllergy("")
+                      ))
+                    }
                   />
                   <Button
                     type="button"
@@ -533,6 +655,16 @@ export default function AddPatientPage() {
                     onChange={(e) => setNewCondition(e.target.value)}
                     placeholder="Dodaj chorobę przewlekłą..."
                     className="flex-1"
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(),
+                      addToList(
+                        "medicalInfo",
+                        "chronicConditions",
+                        newCondition,
+                        () => setNewCondition("")
+                      ))
+                    }
                   />
                   <Button
                     type="button"
@@ -590,6 +722,16 @@ export default function AddPatientPage() {
                     onChange={(e) => setNewHistory(e.target.value)}
                     placeholder="Dodaj informację medyczną..."
                     className="flex-1"
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(),
+                      addToList(
+                        "medicalInfo",
+                        "medicalHistory",
+                        newHistory,
+                        () => setNewHistory("")
+                      ))
+                    }
                   />
                   <Button
                     type="button"
@@ -652,7 +794,7 @@ export default function AddPatientPage() {
             </div>
 
             {/* Przyciski */}
-            <div className="flex justify-end space-x-4 pt-6 border-t">
+            <div className="flex justify-between items-center pt-6 border-t">
               <Button
                 type="button"
                 variant="secondary"
@@ -661,13 +803,24 @@ export default function AddPatientPage() {
               >
                 Anuluj
               </Button>
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="min-w-[120px]"
-              >
-                {submitting ? <Spinner size="sm" /> : "Zapisz pacjenta"}
-              </Button>
+
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(`/dashboard/patients/${id}/view`)}
+                  disabled={submitting}
+                >
+                  Podgląd
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={submitting || !hasChanges()}
+                  className="min-w-[120px]"
+                >
+                  {submitting ? <Spinner size="sm" /> : "Zapisz zmiany"}
+                </Button>
+              </div>
             </div>
           </form>
         </div>

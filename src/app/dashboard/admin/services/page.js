@@ -24,7 +24,10 @@ export default function ServicesPage() {
   const { data, loading, error, refetch } = useApiFetch(getServices, [], true);
 
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState({
+    value: "all",
+    label: "Wszystkie",
+  });
 
   // Modal do dodawania/edycji
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,17 +54,18 @@ export default function ServicesPage() {
       srv.name.toLowerCase().includes(search.toLowerCase()) ||
       (srv.description &&
         srv.description.toLowerCase().includes(search.toLowerCase()));
-    const matchesCategory = category === "all" || srv.category === category;
+    const matchesCategory =
+      category.value === "all" || srv.category === category.value;
     return matchesSearch && matchesCategory;
   });
 
   // Dynamiczne kategorie do selecta
-  const categoryOptions = [
-    { value: "all", label: "Wszystkie" },
-    ...Array.from(new Set((data || []).map((s) => s.category)))
-      .filter(Boolean)
-      .map((c) => ({ value: c, label: c })),
-  ];
+  // const categoryOptions = [
+  //   { value: "all", label: "Wszystkie" },
+  //   ...Array.from(new Set((data || []).map((s) => s.category)))
+  //     .filter(Boolean)
+  //     .map((c) => ({ value: c.value, label: c.label })),
+  // ];
 
   // Otwórz modal do dodawania
   const openAddModal = () => {
@@ -187,7 +191,7 @@ export default function ServicesPage() {
     {
       key: "category",
       label: "Kategoria",
-      render: (v) => categoriesOptions.find((c) => c.value === v)?.label || v,
+      render: (v) => categoriesOptions.find((c) => c.value === v).label || v,
     },
     { key: "duration", label: "Czas (min)" },
     { key: "isActive", label: "Aktywna", render: (v) => (v ? "Tak" : "Nie") },
@@ -236,7 +240,6 @@ export default function ServicesPage() {
           <Button onClick={openAddModal}>Dodaj usługę</Button>
         )}
       </div>
-
       <Card>
         <Card.Content>
           <div className="flex flex-col md:flex-row gap-4 mb-4">
@@ -247,17 +250,25 @@ export default function ServicesPage() {
               className="max-w-xs"
             />
             <Select
-              options={categoryOptions}
+              name="category"
+              options={[
+                { value: "all", label: "Wszystkie" },
+                { value: "consultation", label: "Konsultacja" },
+                { value: "therapy", label: "Terapia" },
+                { value: "massage", label: "Masaż" },
+                { value: "exercise", label: "Ćwiczenia" },
+              ]}
               value={category}
-              onChange={(option) => setCategory(option.value)}
+              onChange={(val) => setCategory(val)}
               placeholder="Kategoria"
               className="max-w-xs"
+              required
             />
             <Button
               variant="outline"
               onClick={() => {
                 setSearch("");
-                setCategory("all");
+                setCategory({ value: "all", label: "Wszystkie" });
               }}
             >
               Wyczyść filtry
@@ -271,7 +282,6 @@ export default function ServicesPage() {
           />
         </Card.Content>
       </Card>
-
       {/* Modal dodawania/edycji usługi */}
       <Modal
         isOpen={isModalOpen}

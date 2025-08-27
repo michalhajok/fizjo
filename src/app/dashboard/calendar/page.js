@@ -1,22 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks";
 import useApiFetch from "@/hooks/useApiFetch";
-import {
-  getAppointments,
-  createAppointment,
-  getPatients,
-  getServices,
-  getPhysiotherapists,
-} from "@/lib/api";
+import { getAppointments, getServices } from "@/lib/api";
 import Calendar from "@/components/ui/Calendar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import Modal from "@/components/ui/Modal";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
+import AddAppointment from "@/components/modal/AddAppointment";
 
 export default function CalendarPage() {
   const { user, loading: authLoading } = useAuth();
@@ -29,7 +21,7 @@ export default function CalendarPage() {
   );
 
   const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
+    const today = Date.now() ? new Date(Date.now()) : new Date();
     today.setHours(0, 0, 0, 0);
     return today;
   });
@@ -37,23 +29,30 @@ export default function CalendarPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({
     patient: "",
-    duration: "",
+    duration: 45, // Domyślnie 45 min
+    scheduledTime: "", // NOWE POLE
     notes: "",
-    scheduledDateTime: "",
+    scheduledDateTime: selectedDate.toDateString(), // Domyślna data
     service: {},
     physiotherapist: {},
   });
   const [formError, setFormError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Pobieranie pacjentów i fizjoterapeutów
-  const { data: patientsData } = useApiFetch(getPatients, [], true);
+  const combineDateAndTime = (date, time) => {
+    const [hours, minutes] = time.split(":");
+    const combined = new Date(date);
+    combined.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    return combined.toISOString();
+  };
 
-  const { data: physiotherapistsData, error: physioError } = useApiFetch(
-    getPhysiotherapists,
-    [],
-    true
-  );
+  // const handleTimeSelect = (time) => {
+  //   setForm((prev) => ({
+  //     ...prev,
+  //     scheduledTime: time,
+  //     // Automatycznie ustaw pełną datę
+  //   }));
+  // };
 
   // Filtrowanie wizyt na wybrany dzień
   const appointments = data?.data || [];
@@ -68,10 +67,6 @@ export default function CalendarPage() {
     });
   }, [appointments, selectedDate]);
 
-  console.log(data?.data);
-  console.log("App");
-
-  console.log(appointments);
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -81,7 +76,7 @@ export default function CalendarPage() {
       patient: "",
       duration: "",
       notes: "",
-      scheduledDateTime: "",
+      scheduledDateTime: selectedDate.toLocaleDateString("sv-SE"), // Ustawienie domyślnej daty
       service: {},
       physiotherapist: {},
     });
@@ -91,49 +86,52 @@ export default function CalendarPage() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    refetch();
   };
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setFormError(null);
-  };
-  console.log(form.scheduledDateTime);
+  // const handleFormChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setForm((prev) => ({ ...prev, [name]: value }));
+  //   setFormError(null);
+  // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setFormError(null);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setFormError(null);
 
-    // Walidacja uproszczona
-    if (
-      !form.patient ||
-      !form.duration ||
-      !form.physiotherapist ||
-      !form.service
-    ) {
-      setFormError("Wszystkie pola są wymagane.");
-      return;
-    }
+  //   // Walidacja uproszczona
+  //   if (
+  //     !form.patient ||
+  //     !form.duration ||
+  //     !form.physiotherapist ||
+  //     !form.service
+  //   ) {
+  //     setFormError("Wszystkie pola są wymagane.");
+  //     return;
+  //   }
 
-    setSubmitting(true);
-    const appointmentData = {
-      patient: form.patient.value,
-      scheduledDateTime: form.scheduledDateTime,
-      duration: form.duration,
-      notes: form.notes,
-      service: form.service.value,
-      physiotherapist: form.physiotherapist.value,
-    };
-    console.log(appointmentData);
-    const { error } = await createAppointment(appointmentData);
-    setSubmitting(false);
-    if (error) {
-      setFormError(error);
-    } else {
-      setIsModalOpen(false);
-      refetch();
-    }
-  };
+  //   setSubmitting(true);
+  //   const appointmentData = {
+  //     patient: form.patient.value,
+  //     scheduledDateTime: combineDateAndTime(
+  //       form.scheduledDateTime,
+  //       form.scheduledTime
+  //     ),
+  //     duration: form.duration,
+  //     notes: form.notes,
+  //     service: form.service.value,
+  //     physiotherapist: form.physiotherapist.value,
+  //   };
+
+  //   const { error } = await createAppointment(appointmentData);
+  //   setSubmitting(false);
+  //   if (error) {
+  //     setFormError(error);
+  //   } else {
+  //     setIsModalOpen(false);
+  //     refetch();
+  //   }
+  // };
 
   if (authLoading || loading) {
     return (
@@ -154,16 +152,15 @@ export default function CalendarPage() {
     );
   }
 
-  const handleChangeService = (val) => {
-    const s = services.find((s) => (s._id === val.value ? s.duration : ""));
-    setForm((f) => ({
-      ...f,
-      service: val,
-      duration: s.duration,
-    }));
-  };
-
-  console.log(form.patient);
+  // const handleChangeService = (val) => {
+  //   const s = services.find((s) => (s._id === val.value ? s.duration : ""));
+  //   setForm((f) => ({
+  //     ...f,
+  //     service: val,
+  //     duration: s.duration,
+  //   }));
+  // };
+  // console.log(form.scheduledDateTime);
 
   return (
     <div className="space-y-6 p-6">
@@ -229,78 +226,11 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Modal dodawania wizyty */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title="Nowa wizyta"
-      >
-        <form className="space-y-4">
-          <Select
-            label="Pacjent"
-            name="patient"
-            options={patientsData?.data.map((p) => ({
-              value: p._id,
-              label: `${p.personalInfo.firstName} ${p.personalInfo.lastName}`,
-            }))}
-            value={form.patient}
-            searchable
-            onChange={(val) =>
-              setForm((f) => ({
-                ...f,
-                patient: val,
-              }))
-            }
-            required
-          />
-          <Select
-            label="Fizjoterapeuta"
-            name="physiotherapist"
-            options={physiotherapistsData?.data.map((u) => ({
-              value: u._id,
-              label: `${u.personalInfo.firstName} ${u.personalInfo.lastName}`,
-            }))}
-            value={form.physiotherapist}
-            onChange={(val) => setForm((f) => ({ ...f, physiotherapist: val }))}
-            required
-          />
-          <Select
-            label="Usługa"
-            name="service"
-            options={services?.map((s) => ({ value: s._id, label: s.name }))}
-            value={form.service}
-            onChange={(val) => handleChangeService(val)}
-            required
-          />
-          <Input
-            label="Data i godzina"
-            name="scheduledDateTime"
-            type="datetime-local"
-            value={form.scheduledDateTime}
-            onChange={handleFormChange}
-            required
-          />
-          <Input
-            label="Czas trwania (min)"
-            name="duration"
-            type="number"
-            value={form.duration}
-            required
-            disabled
-          />
-          <Input
-            label="Notatki"
-            name="notes"
-            as="textarea"
-            value={form.notes}
-            onChange={handleFormChange}
-            rows={3}
-          />
-          <div className="flex justify-end gap-4">
-            <Button onClick={handleSubmit}>Dodaj wizytę</Button>
-          </div>
-        </form>
-      </Modal>
+      <AddAppointment
+        isModalOpen={isModalOpen}
+        handleCloseModal={handleCloseModal}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }

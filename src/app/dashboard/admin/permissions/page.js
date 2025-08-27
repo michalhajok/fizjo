@@ -9,9 +9,12 @@ import Card from "@/components/ui/Card";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
 
-export default function PermissionsPage() {
+function PermissionsPage() {
   const { user, loading: authLoading } = useAuth();
+
+  const toast = useToast();
   const { data, loading, error, refetch } = useApiFetch(
     getPermissions,
     [],
@@ -68,8 +71,10 @@ export default function PermissionsPage() {
     setSaving(false);
     if (error) {
       setApiError(error);
+      toast.error(error);
     } else {
       setSuccess(true);
+      toast.success("Uprawnienia zapisane");
       refetch();
     }
   };
@@ -113,3 +118,11 @@ export default function PermissionsPage() {
     </div>
   );
 }
+
+const Page = () => (
+  <ToastProvider>
+    <PermissionsPage />
+  </ToastProvider>
+);
+
+export default Page;
