@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
+import Checkbox from "@/components/ui/Checkbox";
 
 const genderOptions = [
   { value: "M", label: "Mężczyzna" },
@@ -26,7 +27,7 @@ export default function AddPatientPage() {
       lastName: "",
       pesel: "",
       dateOfBirth: "",
-      gender: "",
+      gender: {},
       contact: {
         phone: "",
         email: "",
@@ -51,6 +52,7 @@ export default function AddPatientPage() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const [consentGiven, setConsentGiven] = useState(true);
 
   // Nowe state dla dynamicznych list
   const [newAllergy, setNewAllergy] = useState("");
@@ -178,6 +180,9 @@ export default function AddPatientPage() {
     if (!form.personalInfo.contact.email.trim()) {
       newErrors["personalInfo.contact.email"] = "Email jest wymagany";
     }
+    if (!consentGiven) {
+      newErrors.consentGiven = "Musisz wyrazić zgodę na przetwarzanie danych";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -194,12 +199,23 @@ export default function AddPatientPage() {
     setApiError(null);
 
     try {
-      const { data, error } = await createPatient(form);
+      const formData = {
+        ...form,
+        personalInfo: {
+          ...form.personalInfo,
+          gender: form.personalInfo.gender.value,
+        },
+        consentGiven,
+      };
+
+      console.log("Submitting form data:", formData);
+
+      const { data, error } = await createPatient(formData);
 
       if (error) {
         setApiError(error);
       } else {
-        router.push("/patients");
+        router.push("/dashboard/patients");
       }
     } catch (err) {
       setApiError("Wystąpił błąd podczas zapisywania pacjenta");
@@ -650,6 +666,12 @@ export default function AddPatientPage() {
                 />
               </div>
             </div>
+            <Checkbox
+              className="mt-4 text-gray-700"
+              label="Wyrażam zgodę na przetwarzanie moich danych osobowych."
+              checked={consentGiven}
+              onChange={(e) => setConsentGiven(e.target.checked)}
+            />
 
             {/* Przyciski */}
             <div className="flex justify-end space-x-4 pt-6 border-t">
