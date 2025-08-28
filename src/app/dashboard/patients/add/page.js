@@ -208,8 +208,6 @@ export default function AddPatientPage() {
         consentGiven,
       };
 
-      console.log("Submitting form data:", formData);
-
       const { data, error } = await createPatient(formData);
 
       if (error) {
