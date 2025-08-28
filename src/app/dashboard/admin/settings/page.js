@@ -43,7 +43,7 @@ export default function AdminSettingsPage() {
       getGlobalSettings()
         .then(({ data, error }) => {
           if (error) setError(error);
-          else setForm(data); // zakładamy, że backend zwraca gotowy obiekt
+          else setForm(data?.data); // zakładamy, że backend zwraca gotowy obiekt
         })
         .finally(() => setLoading(false));
     } else if (!authLoading && user?.role !== "admin") {
@@ -72,6 +72,8 @@ export default function AdminSettingsPage() {
     setError(null);
     setSuccess(false);
   };
+
+  console.log(form);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,8 +119,8 @@ export default function AdminSettingsPage() {
             />
             <Input
               label="Telefon"
-              name="companyPhone"
-              value={form.companyPhone || ""}
+              name="phone"
+              value={form.phone || ""}
               onChange={handleChange}
             />
             <Input

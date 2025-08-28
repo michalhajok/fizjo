@@ -13,7 +13,6 @@ import Select from "@/components/ui/Select";
 import DataTable from "@/components/ui/DataTable";
 import Spinner from "@/components/ui/Spinner";
 import Modal from "@/components/ui/Modal";
-import Textarea from "@/components/ui/Textarea";
 import AddAppointment from "@/components/modal/AddAppointment";
 
 const statusOptions = [
@@ -63,7 +62,6 @@ export default function AppointmentsPage() {
     open: false,
     appointment: null,
   });
-  const [cancelReason, setCancelReason] = useState("");
   const [cancelling, setCancelling] = useState(false);
 
   const handleCloseModal = () => setIsModalOpen(false);
@@ -92,8 +90,7 @@ export default function AppointmentsPage() {
     try {
       const { error } = await updateAppointmentStatus(
         cancelModal.appointment._id,
-        "cancelled",
-        cancelReason || "Anulowano przez personel"
+        "cancelled"
       );
 
       if (error) {
@@ -101,7 +98,6 @@ export default function AppointmentsPage() {
       } else {
         refetch(); // Odśwież listę wizyt
         setCancelModal({ open: false, appointment: null });
-        setCancelReason("");
       }
     } catch (err) {
       console.error("Error cancelling appointment:", err);
@@ -193,7 +189,6 @@ export default function AppointmentsPage() {
               Szczegóły
             </Link>
           )}
-
           {canCancelAppointment(apt) && (
             <button
               onClick={() => setCancelModal({ open: true, appointment: apt })}
@@ -340,15 +335,6 @@ export default function AppointmentsPage() {
                   </p>
                 </div>
               </div>
-
-              <Textarea
-                label="Powód anulowania (opcjonalnie)"
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                placeholder="Np. choroba pacjenta, zmiana planów, problemy techniczne..."
-                rows={3}
-              />
-
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                 <div className="flex">
                   <div className="ml-3">
