@@ -36,13 +36,7 @@ export default function DashboardPage() {
 
   const patients = patientsData?.patients || [];
   const today = todayData?.appointments || [];
-  const {
-    total = 0,
-    active = 0,
-    completed = 0,
-    pending = 0,
-    revenue = 0,
-  } = statsData || {};
+  const { total = 0, active = 0, completed = 0, pending = 0 } = statsData || {};
 
   if (authLoading) {
     return (
@@ -80,16 +74,6 @@ export default function DashboardPage() {
                 <div className="text-3xl">{today.length}</div>
               )}
               <div>Wizyty dziś</div>
-            </Card.Content>
-          </Card>
-          <Card>
-            <Card.Content className="text-center">
-              {loadingStats ? (
-                <Spinner size="sm" />
-              ) : (
-                <div className="text-3xl">{revenue} zł</div>
-              )}
-              <div>Przychód tydzień</div>
             </Card.Content>
           </Card>
           <Card>

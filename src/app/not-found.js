@@ -16,7 +16,7 @@ export default function NotFound() {
           </p>
         </div>
         <div className="space-x-4">
-          <Link href="/dashboard">
+          <Link href="/">
             <Button variant="primary">Wróć do Dashboard</Button>
           </Link>
           <Link href="/signin">

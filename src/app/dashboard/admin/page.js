@@ -45,12 +45,12 @@ export default function AdminDashboardPage() {
       desc: "Twórz i edytuj usługi gabinetu",
       color: "green",
     },
-    {
-      href: "/dashboard/admin/permissions",
-      title: "Uprawnienia",
-      desc: "Role i polityki dostępu",
-      color: "purple",
-    },
+    // {
+    //   href: "/dashboard/admin/permissions",
+    //   title: "Uprawnienia",
+    //   desc: "Role i polityki dostępu",
+    //   color: "purple",
+    // },
     {
       href: "/dashboard/admin/settings",
       title: "Ustawienia",

@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
                   Odśwież stronę
                 </Button>
                 <Button
-                  onClick={() => (window.location.href = "/dashboard")}
+                  onClick={() => (window.location.href = "/")}
                   variant="outline"
                 >
                   Wróć do dashboard

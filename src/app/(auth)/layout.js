@@ -98,7 +98,7 @@ const AuthLayout = ({ children }) => {
 
           {/* Dodatkowe linki */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            {/* <p className="text-sm text-gray-600">
               Potrzebujesz pomocy?{" "}
               <Link
                 href="/contact"
@@ -106,7 +106,7 @@ const AuthLayout = ({ children }) => {
               >
                 Skontaktuj się z nami
               </Link>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

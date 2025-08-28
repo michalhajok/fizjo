@@ -21,18 +21,18 @@ const reportTiles = [
     desc: "Nowi pacjenci, aktywność, demografia",
     color: "green",
   },
-  {
-    href: "/dashboard/reports/clinical",
-    title: "Raport kliniczny",
-    desc: "Postępy terapii, wyniki badań, efekty leczenia",
-    color: "purple",
-  },
-  {
-    href: "/dashboard/reports/exports",
-    title: "Eksport danych",
-    desc: "Eksportuj dane do CSV, PDF lub XLSX",
-    color: "yellow",
-  },
+  // {
+  //   href: "/dashboard/reports/clinical",
+  //   title: "Raport kliniczny",
+  //   desc: "Postępy terapii, wyniki badań, efekty leczenia",
+  //   color: "purple",
+  // },
+  // {
+  //   href: "/dashboard/reports/exports",
+  //   title: "Eksport danych",
+  //   desc: "Eksportuj dane do CSV, PDF lub XLSX",
+  //   color: "yellow",
+  // },
 ];
 
 export default function ReportsPage() {
