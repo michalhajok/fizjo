@@ -14,6 +14,7 @@ import DataTable from "@/components/ui/DataTable";
 import Spinner from "@/components/ui/Spinner";
 import Modal from "@/components/ui/Modal";
 import AddAppointment from "@/components/modal/AddAppointment";
+import CancelAppointment from "@/components/modal/CancelAppointment";
 
 const statusOptions = [
   { value: "all", label: "Wszystkie" },
@@ -64,7 +65,10 @@ export default function AppointmentsPage() {
   });
   const [cancelling, setCancelling] = useState(false);
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    refetch(); // Odśwież listę wizyt po zamknięciu modala
+  };
 
   const appointments = data?.data || [];
 
@@ -116,29 +120,18 @@ export default function AppointmentsPage() {
     {
       key: "date",
       label: "Data",
-      render: (_, apt) =>
-        new Date(apt.scheduledDateTime).toLocaleString("pl-PL"),
     },
     {
       key: "patient",
       label: "Pacjent",
-      render: (_, apt) =>
-        `${apt.patient?.personalInfo?.firstName ?? "-"} ${
-          apt.patient?.personalInfo?.lastName ?? ""
-        }`,
     },
     {
       key: "service",
       label: "Usługa",
-      render: (_, apt) => apt.service?.name || "-",
     },
     {
       key: "physiotherapist",
       label: "Fizjoterapeuta",
-      render: (_, apt) =>
-        `${apt.physiotherapist?.personalInfo?.firstName ?? "-"} ${
-          apt.physiotherapist?.personalInfo?.lastName ?? ""
-        }`,
     },
     {
       key: "status",
@@ -179,26 +172,32 @@ export default function AppointmentsPage() {
     {
       key: "actions",
       label: "Akcje",
-      render: (_, apt) => (
-        <div className="flex gap-2">
-          {apt.status !== "cancelled" && (
-            <Link
-              href={`/dashboard/appointments/${apt._id}`}
-              className="text-blue-600 hover:underline text-sm"
-            >
-              Szczegóły
-            </Link>
-          )}
-          {canCancelAppointment(apt) && (
-            <button
-              onClick={() => setCancelModal({ open: true, appointment: apt })}
-              className="text-red-600 hover:underline text-sm"
-            >
-              Anuluj
-            </button>
-          )}
-        </div>
-      ),
+      render: (_, apt) => {
+        console.log(apt);
+
+        return (
+          <div className="flex gap-2">
+            {apt.status !== "cancelled" && (
+              <Link
+                href={`/dashboard/appointments/${apt.actions._id}`}
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Szczegóły
+              </Link>
+            )}
+            {canCancelAppointment(apt.actions) && (
+              <button
+                onClick={() =>
+                  setCancelModal({ open: true, appointment: apt.actions })
+                }
+                className="text-red-600 hover:underline text-sm"
+              >
+                Anuluj
+              </button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -277,7 +276,16 @@ export default function AppointmentsPage() {
 
           {/* Tabela wizyt */}
           <DataTable
-            data={filtered}
+            data={filtered?.map((apt) => ({
+              date: new Date(apt.scheduledDateTime).toLocaleString("pl-PL"),
+              patient: apt.patient?.fullName || "-",
+              service: apt.service?.name || "-",
+              physiotherapist: `${
+                apt.physiotherapist?.personalInfo?.firstName ?? "-"
+              } ${apt.physiotherapist?.personalInfo?.lastName ?? ""}`,
+              status: apt.status,
+              actions: apt,
+            }))}
             searchable={false}
             columns={columns}
             pageSize={10}
@@ -294,97 +302,12 @@ export default function AppointmentsPage() {
       />
 
       {/* Modal anulowania wizyty */}
-      <Modal
-        isOpen={cancelModal.open}
-        onClose={() => setCancelModal({ open: false, appointment: null })}
-        title="Anuluj wizytę"
-      >
-        <div className="space-y-4">
-          {cancelModal.appointment && (
-            <>
-              <div>
-                <h3 className="text-lg font-medium mb-2 text-gray-700">
-                  Szczegóły wizyty:
-                </h3>
-                <div className="bg-gray-50 p-3 rounded-md space-y-1 text-gray-700">
-                  <p>
-                    <strong>Pacjent:</strong>{" "}
-                    {cancelModal.appointment.patient?.personalInfo?.firstName}{" "}
-                    {cancelModal.appointment.patient?.personalInfo?.lastName}
-                  </p>
-                  <p>
-                    <strong>Data:</strong>{" "}
-                    {new Date(
-                      cancelModal.appointment.scheduledDateTime
-                    ).toLocaleString("pl-PL")}
-                  </p>
-                  <p>
-                    <strong>Usługa:</strong>{" "}
-                    {cancelModal.appointment.service?.name}
-                  </p>
-                  <p>
-                    <strong>Fizjoterapeuta:</strong>{" "}
-                    {
-                      cancelModal.appointment.physiotherapist?.personalInfo
-                        ?.firstName
-                    }{" "}
-                    {
-                      cancelModal.appointment.physiotherapist?.personalInfo
-                        ?.lastName
-                    }
-                  </p>
-                </div>
-              </div>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800">
-                      ⚠️ Uwaga
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700">
-                      <p>
-                        Anulowanie wizyty jest operacją nieodwracalną. Upewnij
-                        się, że chcesz kontynuować.
-                      </p>
-                      <p>
-                        Pacjent powinien zostać powiadomiony o anulowaniu
-                        wizyty.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <Button
-                  variant="secondary"
-                  onClick={() =>
-                    setCancelModal({ open: false, appointment: null })
-                  }
-                  disabled={cancelling}
-                >
-                  Nie anuluj
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleCancelAppointment}
-                  disabled={cancelling}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  {cancelling ? (
-                    <div className="flex items-center gap-2">
-                      <Spinner size="sm" />
-                      Anulowanie...
-                    </div>
-                  ) : (
-                    "Anuluj wizytę"
-                  )}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
+      <CancelAppointment
+        cancelModal={cancelModal}
+        setCancelModal={setCancelModal}
+        handleCancelAppointment={handleCancelAppointment}
+        cancelling={cancelling}
+      />
     </div>
   );
 }

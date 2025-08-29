@@ -125,9 +125,9 @@ export default function AdminSettingsPage() {
             />
             <Input
               label="Email"
-              name="companyEmail"
+              name="email"
               type="email"
-              value={form.companyEmail || ""}
+              value={form.email || ""}
               onChange={handleChange}
             />
             <Input
