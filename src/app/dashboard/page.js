@@ -96,12 +96,16 @@ export default function DashboardPage() {
         {user.role === "physiotherapist" && (
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Kalendarz</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                Kalendarz
+              </h2>
               <Calendar selectedDate={new Date()} appointments={today} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold mb-4">Twoje sesje</h2>
-              <ul className="space-y-2">
+              <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                Twoje sesje
+              </h2>
+              <ul className="space-y-2 text-gray-700">
                 <li>Aktywne: {today.length}</li>
                 <li>Zakończone: {completed}</li>
                 <li>Oczekujące: {pending}</li>

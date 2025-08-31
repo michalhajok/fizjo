@@ -45,12 +45,12 @@ export default function AdminDashboardPage() {
       desc: "Twórz i edytuj usługi gabinetu",
       color: "green",
     },
-    // {
-    //   href: "/dashboard/admin/permissions",
-    //   title: "Uprawnienia",
-    //   desc: "Role i polityki dostępu",
-    //   color: "purple",
-    // },
+    {
+      href: "/dashboard/admin/permissions",
+      title: "Uprawnienia",
+      desc: "Role i polityki dostępu",
+      color: "purple",
+    },
     {
       href: "/dashboard/admin/settings",
       title: "Ustawienia",
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
                   href="/compliance"
                   className="text-blue-600 hover:underline ml-1"
                 >
-                  Compliance
+                  RODO
                 </Link>
                 .
               </p>
@@ -118,7 +118,7 @@ export default function AdminDashboardPage() {
               }}
               className="mt-4 sm:mt-0"
             >
-              Przejdź do Compliance
+              Przejdź do RODO
             </Button>
           </Card.Content>
         </Card>

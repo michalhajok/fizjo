@@ -1,13 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import useApiFetch from "@/hooks/useApiFetch";
-import {
-  createAppointment,
-  getPatients,
-  getServices,
-  getPhysiotherapists,
-} from "@/lib/api";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
@@ -18,101 +10,6 @@ function CancelAppointment({
   handleCancelAppointment,
   cancelling,
 }) {
-  //   const { data: services } = useApiFetch(getServices, [], true);
-
-  //   const [form, setForm] = useState({
-  //     patient: "",
-  //     duration: 45, // Domyślnie 45 min
-  //     scheduledTime: "", // NOWE POLE
-  //     notes: "",
-  //     scheduledDateTime: selectedDate.toLocaleDateString("sv-SE"), // Domyślna data
-  //     service: {},
-  //     physiotherapist: {},
-  //   });
-
-  //   const [formError, setFormError] = useState(null);
-  //   const [submitting, setSubmitting] = useState(false);
-
-  //   // Pobieranie pacjentów i fizjoterapeutów
-  //   const { data: patientsData } = useApiFetch(getPatients, [], true);
-
-  //   const { data: physiotherapistsData, error: physioError } = useApiFetch(
-  //     getPhysiotherapists,
-  //     [],
-  //     true
-  //   );
-
-  //   const combineDateAndTime = (date, time) => {
-  //     const [hours, minutes] = time.split(":");
-  //     const combined = new Date(date);
-  //     combined.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-  //     return combined.toISOString();
-  //   };
-
-  //   const handleTimeSelect = (time) => {
-  //     setForm((prev) => ({
-  //       ...prev,
-  //       scheduledTime: time,
-  //       // Automatycznie ustaw pełną datę
-  //     }));
-  //   };
-
-  //   const handleChangeService = (val) => {
-  //     const s = services.find((s) => (s._id === val.value ? s.duration : ""));
-  //     setForm((f) => ({
-  //       ...f,
-  //       service: val,
-  //       duration: s.duration,
-  //     }));
-  //   };
-
-  //   //   const handleCloseModal = () => {
-  //   //     setIsModalOpen(false);
-  //   //   };
-
-  //   const handleFormChange = (e) => {
-  //     const { name, value } = e.target;
-  //     setForm((prev) => ({ ...prev, [name]: value }));
-  //     setFormError(null);
-  //   };
-
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setFormError(null);
-
-  //     // Walidacja uproszczona
-  //     if (
-  //       !form.patient ||
-  //       !form.duration ||
-  //       !form.physiotherapist ||
-  //       !form.service
-  //     ) {
-  //       setFormError("Wszystkie pola są wymagane.");
-  //       return;
-  //     }
-
-  //     setSubmitting(true);
-  //     const appointmentData = {
-  //       patient: form.patient.value,
-  //       scheduledDateTime: combineDateAndTime(
-  //         form.scheduledDateTime,
-  //         form.scheduledTime
-  //       ),
-  //       duration: form.duration,
-  //       notes: form.notes,
-  //       service: form.service.value,
-  //       physiotherapist: form.physiotherapist.value,
-  //     };
-
-  //     const { error } = await createAppointment(appointmentData);
-  //     setSubmitting(false);
-  //     if (error) {
-  //       setFormError(error);
-  //     } else {
-  //       handleCloseModal();
-  //     }
-  //   };
-
   return (
     <Modal
       isOpen={cancelModal.open}

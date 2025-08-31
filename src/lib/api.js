@@ -258,7 +258,7 @@ export const uploadAttachment = async (appointmentId, file) => {
 //     method: "GET",
 //   });
 
-export const getIcd9Procedures = (search = "") => request(`/api/icd9`);
+export const getIcd9Procedures = () => request(`/api/icd9`);
 
 // STATS
 export const getWeeklyStats = () => request("/api/stats/weekly");
@@ -295,6 +295,18 @@ export const CreatePermission = (body) =>
 
 export const updatePermissions = (id, body) =>
   request("/api/admin/permissions", { method: "PUT", body });
+
+export const updateUserRole = (id, role) =>
+  request(`/api/admin/users/${id}/role`, {
+    method: "PUT",
+    body: { role },
+  });
+
+export const updateUserPermissions = (id, permissions) =>
+  request(`/api/admin/users/${id}/permissions`, {
+    method: "PUT",
+    body: { permissions },
+  });
 
 export const getAuditLogs = () =>
   request("/api/admin/audit-logs", { method: "GET" });

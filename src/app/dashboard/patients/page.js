@@ -23,7 +23,7 @@ export default function PatientsPage() {
   const { data, loading, error, refetch } = useApiFetch(getPatients, [], true);
 
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState({ value: "all", label: "Wszyscy" });
 
   if (authLoading || loading) {
     return (
@@ -58,9 +58,9 @@ export default function PatientsPage() {
         p.personalInfo.contact.phone.includes(search));
 
     const matchesStatus =
-      status === "all" ||
-      (status === "active" && p.isActive !== false) ||
-      (status === "inactive" && p.isActive === false);
+      status.value === "all" ||
+      (status.value === "active" && p.isActive !== false) ||
+      (status.value === "inactive" && p.isActive === false);
 
     return matchesSearch && matchesStatus;
   });
@@ -258,7 +258,7 @@ export default function PatientsPage() {
             <div className="max-w-xs">
               <Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => setStatus(e)}
                 options={statusOptions}
               />
             </div>
@@ -266,7 +266,7 @@ export default function PatientsPage() {
               variant="outline"
               onClick={() => {
                 setSearch("");
-                setStatus("all");
+                setStatus({ value: "all", label: "Wszyscy" });
               }}
             >
               Wyczyść filtry

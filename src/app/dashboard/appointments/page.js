@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks";
 import useApiFetch from "@/hooks/useApiFetch";
@@ -12,7 +12,6 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import DataTable from "@/components/ui/DataTable";
 import Spinner from "@/components/ui/Spinner";
-import Modal from "@/components/ui/Modal";
 import AddAppointment from "@/components/modal/AddAppointment";
 import CancelAppointment from "@/components/modal/CancelAppointment";
 
