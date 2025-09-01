@@ -30,19 +30,55 @@ export default function AdminDashboard() {
     refetch,
   } = useApiFetch(getUsers, [], true);
 
+  const defaultRolePermissions = {
+    admin: ["admin:all"],
+    // manager: [
+    //   "patients:read",
+    //   "patients:write",
+    //   "patients:delete",
+    //   "employees:read",
+    //   "employees:write",
+    //   "visits:read",
+    //   "visits:write",
+    //   "visits:delete",
+    //   "reports:read",
+    //   "reports:write",
+    //   "settings:read",
+    //   "settings:write",
+    // ],
+    physiotherapist: [
+      "patients:read",
+      "patients:write",
+      "visits:read",
+      "visits:write",
+      "reports:read",
+    ],
+    receptionist: [
+      "patients:read",
+      "patients:write",
+      "visits:read",
+      "visits:write",
+    ],
+    // assistant: ["patients:read", "visits:read"],
+  };
+
   const roleOptions = [
     { value: "admin", label: "Administrator" },
-    { value: "manager", label: "Manager" },
+    // { value: "manager", label: "Manager" },
     { value: "physiotherapist", label: "Fizjoterapeuta" },
     { value: "receptionist", label: "Recepcjonista" },
-    { value: "assistant", label: "Asystent" },
+    // { value: "assistant", label: "Asystent" },
   ];
 
   const handleUserSubmit = async (e) => {
     e.preventDefault();
     setUserFormError(null);
     setSubmittingUser(true);
-    const { data, error } = await createUser(userForm);
+    const userData = {
+      ...userForm,
+      permissions: defaultRolePermissions[userForm.role] || [],
+    };
+    const { data, error } = await createUser(userData);
     setSubmittingUser(false);
     if (error) {
       setUserFormError(error);

@@ -1,3 +1,4 @@
+// /src/app/dashboard/appointments/[id]/page.js
 "use client";
 
 import { useState, useEffect } from "react";
@@ -120,24 +121,6 @@ export default function AppointmentDetailPage() {
       setSaving(false);
     }
   };
-
-  // // Zastosowanie szablonu
-  // const handleApplyTemplate = async (templateId) => {
-  //   try {
-  //     setSaving(true);
-  //     const { data, error } = await applyTemplate(id, { templateId });
-  //     if (error) {
-  //       setError(error);
-  //     } else {
-  //       setAppointment(data.appointment);
-  //       setSelectedTemplate(data.template);
-  //     }
-  //   } catch (err) {
-  //     setError("Błąd stosowania szablonu");
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
 
   // Cyfrowy podpis
   const handleSign = async () => {

@@ -27,21 +27,21 @@ const permissions = {
   // Pacjenci
   "patients:read": "Przeglądanie pacjentów",
   "patients:write": "Dodawanie i edycja pacjentów",
-  "patients:delete": "Usuwanie pacjentów",
+  // "patients:delete": "Usuwanie pacjentów",
 
   // Pracownicy
   "employees:read": "Przeglądanie pracowników",
   "employees:write": "Dodawanie i edycja pracowników",
-  "employees:delete": "Usuwanie pracowników",
+  // "employees:delete": "Usuwanie pracowników",
 
   // Wizyty
   "visits:read": "Przeglądanie wizyt",
   "visits:write": "Tworzenie i edycja wizyt",
-  "visits:delete": "Usuwanie wizyt",
+  // "visits:delete": "Usuwanie wizyt",
 
   // Raporty
   "reports:read": "Dostęp do raportów",
-  "reports:write": "Tworzenie i eksport raportów",
+  // "reports:write": "Tworzenie i eksport raportów",
 
   // Ustawienia
   "settings:read": "Przeglądanie ustawień",
@@ -444,9 +444,9 @@ export default function PermissionsPage() {
                       {usersInRole}
                     </p>
                   </div>
-                  <Badge color={getRoleColor(key)} className="text-xs">
+                  {/* <Badge color={getRoleColor(key)} className="text-xs">
                     {key}
-                  </Badge>
+                  </Badge> */}
                 </div>
               </Card.Content>
             </Card>
@@ -484,8 +484,8 @@ export default function PermissionsPage() {
           {roleModal.user && (
             <>
               <div>
-                <h3 className="font-medium mb-2">Użytkownik:</h3>
-                <p>
+                <h3 className="font-medium mb-2 text-gray-600">Użytkownik:</h3>
+                <p className="text-gray-600">
                   {roleModal.user.firstName} {roleModal.user.lastName}
                 </p>
                 <p className="text-sm text-gray-500">{roleModal.user.email}</p>
@@ -498,7 +498,7 @@ export default function PermissionsPage() {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-gray-600"
                 >
                   {Object.entries(roles).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -557,8 +557,8 @@ export default function PermissionsPage() {
           {editModal.user && (
             <>
               <div>
-                <h3 className="font-medium mb-2">Użytkownik:</h3>
-                <p>
+                <h3 className="font-medium mb-2 text-gray-600">Użytkownik:</h3>
+                <p className="text-gray-600">
                   {editModal.user.firstName} {editModal.user.lastName}
                 </p>
                 <p className="text-sm text-gray-500">{editModal.user.email}</p>
@@ -571,7 +571,7 @@ export default function PermissionsPage() {
               </div>
 
               <div>
-                <h3 className="font-medium mb-3">Uprawnienia:</h3>
+                <h3 className="font-medium mb-3 text-gray-600">Uprawnienia:</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.entries(permissionsByCategory).map(
                     ([category, categoryPermissions]) => (
@@ -588,7 +588,7 @@ export default function PermissionsPage() {
                             return (
                               <label
                                 key={permission}
-                                className="flex items-start"
+                                className="flex items-start text-gray-600"
                               >
                                 <input
                                   type="checkbox"

@@ -253,6 +253,11 @@ export const uploadAttachment = async (appointmentId, file) => {
   return data;
 };
 
+export const deleteAttachment = (appointmentId, attachmentId) =>
+  request(`/api/appointments/${appointmentId}/attachments/${attachmentId}`, {
+    method: "DELETE",
+  });
+
 // export const getIcd9Procedures = (search = "") =>
 //   request(`/api/icd9${search ? "?search=" + encodeURIComponent(search) : ""}`, {
 //     method: "GET",

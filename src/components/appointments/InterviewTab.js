@@ -4,6 +4,7 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import FileUpload from "@/components/ui/FileUpload";
+import { uploadAttachment, deleteAttachment } from "@/lib/api";
 
 export default function InterviewTab({ appointment, onUpdate }) {
   const [interview, setInterview] = useState(
@@ -40,21 +41,148 @@ export default function InterviewTab({ appointment, onUpdate }) {
     }
   };
 
-  const handleFileUpload = (file) => {
-    // Tu dodaj logikę uploadu - można użyć uploadAttachment z API
+  const handleFileDelete = async (attachmentId) => {
+    if (!appointment._id) {
+      alert("Nie można usunąć załącznika: brak ID wizyty");
+      return;
+    }
+    try {
+      const result = await deleteAttachment(appointment._id, attachmentId);
+      console.log("Delete result:", result);
+      if (result.data.success) {
+        setInterview((prev) => ({
+          ...prev,
+          attachments: prev.attachments.filter(
+            (att) => att.id !== attachmentId
+          ),
+        }));
+      } else {
+        alert("Nie udało się usunąć załącznika");
+      }
+    } catch (err) {
+      console.error("Error deleting attachment:", err);
+      alert("Wystąpił błąd podczas usuwania załącznika");
+    }
+  };
+
+  const handleFileUpload = async (file) => {
+    // Walidacja pliku
+    const maxSizeInMB = 10;
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+
+    // Sprawdź rozmiar pliku
+    if (file.size > maxSizeInBytes) {
+      alert(`Plik jest za duży. Maksymalny rozmiar to ${maxSizeInMB}MB`);
+      return;
+    }
+
+    // Sprawdź typ pliku
+    if (!allowedTypes.includes(file.type)) {
+      alert(
+        "Nieobsługiwany format pliku. Dozwolone: PDF, JPG, PNG, GIF, DOC, DOCX, XLS, XLSX"
+      );
+      return;
+    }
+
+    // Wyznacz kategorię na podstawie typu pliku
+    const getFileCategory = (mimeType) => {
+      if (mimeType.startsWith("image/")) return "image";
+      if (mimeType === "application/pdf") return "pdf";
+      if (mimeType.includes("word") || mimeType.includes("document"))
+        return "document";
+      if (mimeType.includes("excel") || mimeType.includes("sheet"))
+        return "spreadsheet";
+      return "document";
+    };
+
+    // Tymczasowy obiekt załącznika z URL podglądu
+    const tempAttachment = {
+      id: `temp-${Date.now()}`,
+      url: URL.createObjectURL(file),
+      filename: file.name,
+      mimetype: file.type,
+      size: file.size,
+      category: getFileCategory(file.type),
+      uploadedAt: new Date(),
+      uploading: true,
+      file: file, // Zachowaj referencję do oryginalnego pliku
+    };
+
+    // Dodaj tymczasowy załącznik do stanu
     setInterview((prev) => ({
       ...prev,
-      attachments: [
-        ...prev.attachments,
-        {
-          url: URL.createObjectURL(file),
-          filename: file.name,
-          mimetype: file.type,
-          category: "document",
-          uploadedAt: new Date(),
-        },
-      ],
+      attachments: [...prev.attachments, tempAttachment],
     }));
+
+    try {
+      // Upload pliku przez API używając istniejącej funkcji
+      // Używamy appointment.id jako appointmentId
+      const result = await uploadAttachment(appointment._id, file);
+      console.log("Upload result:", result);
+
+      if (!result.success && result.error) {
+        // Usuń tymczasowy załącznik w przypadku błędu
+        setInterview((prev) => ({
+          ...prev,
+          attachments: prev.attachments.filter(
+            (att) => att.id !== tempAttachment.id
+          ),
+        }));
+
+        alert(`Błąd uploadu pliku: ${result.error}`);
+        // Zwolnij tymczasowy URL
+        URL.revokeObjectURL(tempAttachment.url);
+        return;
+      }
+
+      // Zaktualizuj załącznik z danymi z serwera
+      setInterview((prev) => ({
+        ...prev,
+        attachments: prev.attachments.map((att) =>
+          att.id === tempAttachment.id
+            ? {
+                ...att,
+                id: result.data?.id || result.id, // Dostosuj do struktury odpowiedzi z backend
+                url: result.data?.url || result.url,
+                uploading: false,
+                uploadedAt:
+                  result.data?.uploadedAt || result.uploadedAt || new Date(),
+                // Usuń tymczasowe właściwości
+                file: undefined,
+              }
+            : att
+        ),
+      }));
+
+      // Zwolnij tymczasowy URL
+      URL.revokeObjectURL(tempAttachment.url);
+    } catch (err) {
+      console.error("Error uploading file:", err);
+
+      // Usuń tymczasowy załącznik w przypadku błędu
+      setInterview((prev) => ({
+        ...prev,
+        attachments: prev.attachments.filter(
+          (att) => att.id !== tempAttachment.id
+        ),
+      }));
+
+      // Zwolnij tymczasowy URL
+      URL.revokeObjectURL(tempAttachment.url);
+
+      alert("Wystąpił błąd podczas uploadu pliku");
+    }
   };
 
   return (
@@ -177,19 +305,14 @@ export default function InterviewTab({ appointment, onUpdate }) {
             <label className="block font-medium mb-2">
               Załączniki do wywiadu
             </label>
-            <FileUpload onUpload={handleFileUpload} />
+            <FileUpload onFileSelect={handleFileUpload} />
             {interview.attachments?.map((att, idx) => (
               <div key={idx} className="flex items-center gap-2 mt-2">
                 <span className="text-sm">{att.filename}</span>
                 <Button
                   size="xs"
                   variant="danger"
-                  onClick={() =>
-                    handleChange(
-                      "attachments",
-                      interview.attachments.filter((_, i) => i !== idx)
-                    )
-                  }
+                  onClick={() => handleFileDelete(att._id)}
                 >
                   Usuń
                 </Button>
