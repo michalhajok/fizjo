@@ -9,6 +9,18 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import AddAppointment from "@/components/modal/AddAppointment";
+import CancelAppointment from "@/components/modal/CancelAppointment";
+
+const statusLabels = {
+  scheduled: "Zaplanowana",
+  confirmed: "Potwierdzona",
+  "checked-in": "Przyjęty",
+  "in-progress": "W trakcie",
+  completed: "Zakończona",
+  cancelled: "Anulowana",
+  "no-show": "Nieobecność",
+  rescheduled: "Przełożona",
+};
 
 export default function CalendarPage() {
   const { user, loading: authLoading } = useAuth();
@@ -37,7 +49,12 @@ export default function CalendarPage() {
     physiotherapist: {},
   });
   const [formError, setFormError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // Modal anulowania wizyty
+  const [cancelModal, setCancelModal] = useState({
+    open: false,
+    appointment: null,
+  });
+  const [cancelling, setCancelling] = useState(false);
 
   const combineDateAndTime = (date, time) => {
     const [hours, minutes] = time.split(":");
@@ -58,6 +75,7 @@ export default function CalendarPage() {
   const appointments = data?.data || [];
   const selectedDayAppointments = useMemo(() => {
     return appointments.filter((apt) => {
+      if (apt.status === "cancelled") return false;
       const aptDate = new Date(apt.scheduledDateTime);
       return (
         aptDate.getFullYear() === selectedDate.getFullYear() &&
@@ -66,6 +84,20 @@ export default function CalendarPage() {
       );
     });
   }, [appointments, selectedDate]);
+
+  const getStatusColor = (status) => {
+    const colors = {
+      scheduled: "blue",
+      confirmed: "green",
+      "checked-in": "purple",
+      "in-progress": "yellow",
+      completed: "green",
+      cancelled: "red",
+      "no-show": "red",
+      rescheduled: "orange",
+    };
+    return colors[status] || "gray";
+  };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -87,6 +119,35 @@ export default function CalendarPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     refetch();
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!cancelModal.appointment) return;
+
+    setCancelling(true);
+    try {
+      const { error } = await updateAppointmentStatus(
+        cancelModal.appointment._id,
+        "cancelled"
+      );
+
+      if (error) {
+        alert("Błąd anulowania wizyty: " + error);
+      } else {
+        refetch(); // Odśwież listę wizyt
+        setCancelModal({ open: false, appointment: null });
+      }
+    } catch (err) {
+      console.error("Error cancelling appointment:", err);
+      alert("Wystąpił błąd podczas anulowania wizyty");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const canCancelAppointment = (appointment) => {
+    // Można anulować wizyty które nie są już zakończone, anulowane lub nie odbyły się
+    return ["scheduled"].includes(appointment.status);
   };
 
   // const handleFormChange = (e) => {
@@ -202,12 +263,29 @@ export default function CalendarPage() {
                   {selectedDayAppointments.map((apt) => (
                     <li
                       key={apt.id || apt._id}
-                      className="border rounded px-3 py-2 flex flex-col"
+                      className="border rounded px-3 py-2 flex flex-wrap gap-2 items-center justify-between"
                     >
                       <span className="font-medium">
                         {apt.patient
                           ? `${apt.patient.personalInfo.firstName} ${apt.patient.personalInfo.lastName}`
                           : "Nieznany pacjent"}
+                      </span>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          getStatusColor(apt.status) === "green"
+                            ? "bg-green-100 text-green-800"
+                            : getStatusColor(apt.status) === "blue"
+                            ? "bg-blue-100 text-blue-800"
+                            : getStatusColor(apt.status) === "red"
+                            ? "bg-red-100 text-red-800"
+                            : getStatusColor(apt.status) === "yellow"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : getStatusColor(apt.status) === "purple"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {statusLabels[apt.status] || "Nieznany status"}
                       </span>
                       <span className="text-sm text-gray-700">
                         {apt.duration} • {apt.service.name}
@@ -216,6 +294,20 @@ export default function CalendarPage() {
                         <span className="text-xs text-gray-500 mt-1">
                           {apt.notes}
                         </span>
+                      )}
+
+                      {canCancelAppointment(apt) && (
+                        <button
+                          onClick={() =>
+                            setCancelModal({
+                              open: true,
+                              appointment: apt,
+                            })
+                          }
+                          className="text-red-600 hover:underline text-sm"
+                        >
+                          Anuluj
+                        </button>
                       )}
                     </li>
                   ))}
@@ -230,6 +322,12 @@ export default function CalendarPage() {
         isModalOpen={isModalOpen}
         handleCloseModal={handleCloseModal}
         selectedDate={selectedDate}
+      />
+      <CancelAppointment
+        cancelModal={cancelModal}
+        setCancelModal={setCancelModal}
+        handleCancelAppointment={handleCancelAppointment}
+        cancelling={cancelling}
       />
     </div>
   );

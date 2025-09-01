@@ -48,7 +48,6 @@ export default function InterviewTab({ appointment, onUpdate }) {
     }
     try {
       const result = await deleteAttachment(appointment._id, attachmentId);
-      console.log("Delete result:", result);
       if (result.data.success) {
         setInterview((prev) => ({
           ...prev,
@@ -129,7 +128,6 @@ export default function InterviewTab({ appointment, onUpdate }) {
       // Upload pliku przez API używając istniejącej funkcji
       // Używamy appointment.id jako appointmentId
       const result = await uploadAttachment(appointment._id, file);
-      console.log("Upload result:", result);
 
       if (!result.success && result.error) {
         // Usuń tymczasowy załącznik w przypadku błędu

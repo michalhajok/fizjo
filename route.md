@@ -5,15 +5,11 @@
 /verify-email
 
 /dashboard +/-
-/dashboard/admin +/-
-/dashboard/admin/permissions +/-
 /dashboard/admin/settings +/-
 /dashboard/appointments/[id]
 /dashboard/documents ?
 /dashboard/examinations ?
-/dashboard/reports +/---
-/dashboard/reports/appointments ?
-/dashboard/reports/patients ?
+
 /dashboard/reports/clinical ?
 /dashboard/reports/exports ?
 /dashboard/profile
@@ -29,7 +25,9 @@
 /dashboard/admin/users √
 /dashboard/admin/users/[id] √
 /dashboard/admin/services √
+/dashboard/admin/permissions √
 /dashboard/admin/audit-logs √
+/dashboard/admin √
 
 /dashboard/calendar √
 /dashboard/patients √
@@ -38,3 +36,7 @@
 /dashboard/patients/[id]/edit √
 
 /dashboard/appointments √
+
+/dashboard/reports √
+/dashboard/reports/appointments √
+/dashboard/reports/patients √

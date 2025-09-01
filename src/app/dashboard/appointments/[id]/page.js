@@ -104,10 +104,7 @@ export default function AppointmentDetailPage() {
   const handleStatusChange = async (newStatus, reason = "") => {
     try {
       setSaving(true);
-      const { data, error } = await updateAppointmentStatus(id, {
-        status: newStatus,
-        reason,
-      });
+      const { data, error } = await updateAppointmentStatus(id, newStatus);
       if (error) {
         setError(error);
       } else {
