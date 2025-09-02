@@ -6,14 +6,12 @@
 
 /dashboard +/-
 /dashboard/admin/settings +/-
-/dashboard/appointments/[id]
 /dashboard/documents ?
 /dashboard/examinations ?
 
 /dashboard/reports/clinical ?
 /dashboard/reports/exports ?
 /dashboard/profile
-/dashboard/schedule ?
 
 <!-- /dashboard/notifications
 /dashboard/notifications/settings
@@ -36,6 +34,7 @@
 /dashboard/patients/[id]/edit √
 
 /dashboard/appointments √
+/dashboard/appointments/[id] √
 
 /dashboard/reports √
 /dashboard/reports/appointments √

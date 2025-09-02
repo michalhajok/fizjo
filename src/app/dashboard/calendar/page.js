@@ -3,13 +3,14 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks";
 import useApiFetch from "@/hooks/useApiFetch";
-import { getAppointments, getServices } from "@/lib/api";
+import { getAppointments, getServices, updateAppointment } from "@/lib/api";
 import Calendar from "@/components/ui/Calendar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import AddAppointment from "@/components/modal/AddAppointment";
 import CancelAppointment from "@/components/modal/CancelAppointment";
+import RescheduleAppointment from "@/components/modal/RescheduleAppointment";
 
 const statusLabels = {
   scheduled: "Zaplanowana",
@@ -24,7 +25,7 @@ const statusLabels = {
 
 export default function CalendarPage() {
   const { user, loading: authLoading } = useAuth();
-  const { data: services } = useApiFetch(getServices, [], true);
+  // const { data: services } = useApiFetch(getServices, [], true);
 
   const { data, loading, error, refetch } = useApiFetch(
     getAppointments,
@@ -49,8 +50,12 @@ export default function CalendarPage() {
     physiotherapist: {},
   });
   const [formError, setFormError] = useState(null);
-  const [submitting, setSubmitting] = useState(false); // Modal anulowania wizyty
+  // const [submitting, setSubmitting] = useState(false); // Modal anulowania wizyty
   const [cancelModal, setCancelModal] = useState({
+    open: false,
+    appointment: null,
+  });
+  const [rescheduleModal, setRescheduleModal] = useState({
     open: false,
     appointment: null,
   });
@@ -61,6 +66,25 @@ export default function CalendarPage() {
     const combined = new Date(date);
     combined.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     return combined.toISOString();
+  };
+
+  const handleRescheduleAppointment = async (appointment, newDateTime) => {
+    setCancelling(true);
+    try {
+      const { error } = await updateAppointment(appointment._id, {
+        scheduledDateTime: newDateTime,
+      });
+      if (error) {
+        alert("Błąd zmiany terminu: " + error);
+      } else {
+        refetch();
+        setRescheduleModal({ open: false, appointment: null });
+      }
+    } catch (e) {
+      alert("Wystąpił błąd podczas zmiany terminu");
+    } finally {
+      setCancelling(false);
+    }
   };
 
   // const handleTimeSelect = (time) => {
@@ -150,50 +174,6 @@ export default function CalendarPage() {
     return ["scheduled"].includes(appointment.status);
   };
 
-  // const handleFormChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setForm((prev) => ({ ...prev, [name]: value }));
-  //   setFormError(null);
-  // };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setFormError(null);
-
-  //   // Walidacja uproszczona
-  //   if (
-  //     !form.patient ||
-  //     !form.duration ||
-  //     !form.physiotherapist ||
-  //     !form.service
-  //   ) {
-  //     setFormError("Wszystkie pola są wymagane.");
-  //     return;
-  //   }
-
-  //   setSubmitting(true);
-  //   const appointmentData = {
-  //     patient: form.patient.value,
-  //     scheduledDateTime: combineDateAndTime(
-  //       form.scheduledDateTime,
-  //       form.scheduledTime
-  //     ),
-  //     duration: form.duration,
-  //     notes: form.notes,
-  //     service: form.service.value,
-  //     physiotherapist: form.physiotherapist.value,
-  //   };
-
-  //   const { error } = await createAppointment(appointmentData);
-  //   setSubmitting(false);
-  //   if (error) {
-  //     setFormError(error);
-  //   } else {
-  //     setIsModalOpen(false);
-  //     refetch();
-  //   }
-  // };
-
   if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -212,16 +192,6 @@ export default function CalendarPage() {
       </div>
     );
   }
-
-  // const handleChangeService = (val) => {
-  //   const s = services.find((s) => (s._id === val.value ? s.duration : ""));
-  //   setForm((f) => ({
-  //     ...f,
-  //     service: val,
-  //     duration: s.duration,
-  //   }));
-  // };
-  // console.log(form.scheduledDateTime);
 
   return (
     <div className="space-y-6 p-6">
@@ -309,6 +279,19 @@ export default function CalendarPage() {
                           Anuluj
                         </button>
                       )}
+                      {apt.status === "scheduled" && (
+                        <button
+                          className="text-yellow-600 hover:underline text-sm"
+                          onClick={() =>
+                            setRescheduleModal({
+                              open: true,
+                              appointment: apt,
+                            })
+                          }
+                        >
+                          Zmień termin
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -328,6 +311,13 @@ export default function CalendarPage() {
         setCancelModal={setCancelModal}
         handleCancelAppointment={handleCancelAppointment}
         cancelling={cancelling}
+      />
+
+      <RescheduleAppointment
+        open={rescheduleModal.open}
+        appointment={rescheduleModal.appointment}
+        onClose={() => setRescheduleModal({ open: false, appointment: null })}
+        onReschedule={handleRescheduleAppointment}
       />
     </div>
   );

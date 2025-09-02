@@ -50,7 +50,6 @@ function AddAppointment({ isModalOpen, handleCloseModal, selectedDate }) {
     setForm((prev) => ({
       ...prev,
       scheduledTime: time,
-      // Automatycznie ustaw pełną datę
     }));
   };
 
@@ -62,10 +61,6 @@ function AddAppointment({ isModalOpen, handleCloseModal, selectedDate }) {
       duration: s.duration,
     }));
   };
-
-  //   const handleCloseModal = () => {
-  //     setIsModalOpen(false);
-  //   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -159,7 +154,7 @@ function AddAppointment({ isModalOpen, handleCloseModal, selectedDate }) {
         />
         {form.physiotherapist && (
           <TimeSlotPicker
-            selectedDate={selectedDate}
+            selectedDate={new Date(form.scheduledDateTime)}
             therapistId={form.physiotherapist.value}
             serviceId={form.service.value}
             duration={form.duration}
