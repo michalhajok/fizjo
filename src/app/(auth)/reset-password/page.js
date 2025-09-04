@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { resetPassword, validateResetToken } from "@/lib/api";
 import AuthCard from "@/components/auth/AuthCard";
@@ -196,120 +196,124 @@ export default function ResetPasswordPage() {
   // Formularz resetowania hasła
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <AuthCard
-        title="Ustaw nowe hasło"
-        subtitle="Wprowadź nowe, bezpieczne hasło do Twojego konta"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Błąd ogólny */}
-          {errors.general && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-800 text-sm">{errors.general}</p>
-            </div>
-          )}
-
-          {/* Informacja o wymaganiach hasła */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-blue-800 text-sm font-medium mb-2">
-              Wymagania hasła:
-            </p>
-            <ul className="text-blue-700 text-xs space-y-1">
-              <li>• Co najmniej 8 znaków</li>
-              <li>• Zawiera małą literę (a-z)</li>
-              <li>• Zawiera wielką literę (A-Z)</li>
-              <li>• Zawiera cyfrę (0-9)</li>
-            </ul>
-          </div>
-
-          {/* Pole hasła */}
-          <Input
-            type="password"
-            name="password"
-            label="Nowe hasło"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-            placeholder="Wprowadź nowe hasło"
-            required
-            autoComplete="new-password"
-          />
-
-          {/* Potwierdzenie hasła */}
-          <Input
-            type="password"
-            name="confirmPassword"
-            label="Potwierdź hasło"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            placeholder="Powtórz nowe hasło"
-            required
-            autoComplete="new-password"
-          />
-
-          {/* Wskaźnik siły hasła */}
-          {form.password && (
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Siła hasła:</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      form.password.length < 8
-                        ? "w-1/4 bg-red-500"
-                        : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)
-                        ? "w-2/4 bg-yellow-500"
-                        : form.password.length < 12
-                        ? "w-3/4 bg-blue-500"
-                        : "w-full bg-green-500"
-                    }`}
-                  />
-                </div>
-                <span
-                  className={`text-xs font-medium ${
-                    form.password.length < 8
-                      ? "text-red-600"
-                      : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)
-                      ? "text-yellow-600"
-                      : form.password.length < 12
-                      ? "text-blue-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {form.password.length < 8
-                    ? "Słabe"
-                    : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)
-                    ? "Średnie"
-                    : form.password.length < 12
-                    ? "Dobre"
-                    : "Bardzo dobre"}
-                </span>
+      <Suspense>
+        <AuthCard
+          title="Ustaw nowe hasło"
+          subtitle="Wprowadź nowe, bezpieczne hasło do Twojego konta"
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Błąd ogólny */}
+            {errors.general && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-800 text-sm">{errors.general}</p>
               </div>
+            )}
+
+            {/* Informacja o wymaganiach hasła */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-blue-800 text-sm font-medium mb-2">
+                Wymagania hasła:
+              </p>
+              <ul className="text-blue-700 text-xs space-y-1">
+                <li>• Co najmniej 8 znaków</li>
+                <li>• Zawiera małą literę (a-z)</li>
+                <li>• Zawiera wielką literę (A-Z)</li>
+                <li>• Zawiera cyfrę (0-9)</li>
+              </ul>
             </div>
-          )}
 
-          {/* Przycisk submit */}
-          <Button
-            type="submit"
-            loading={loading}
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? "Zmienianie hasła..." : "Zmień hasło"}
-          </Button>
+            {/* Pole hasła */}
+            <Input
+              type="password"
+              name="password"
+              label="Nowe hasło"
+              value={form.password}
+              onChange={handleChange}
+              error={errors.password}
+              placeholder="Wprowadź nowe hasło"
+              required
+              autoComplete="new-password"
+            />
 
-          {/* Link powrotu */}
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => router.push("/signin")}
-              className="text-sm text-blue-600 hover:text-blue-500"
+            {/* Potwierdzenie hasła */}
+            <Input
+              type="password"
+              name="confirmPassword"
+              label="Potwierdź hasło"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              placeholder="Powtórz nowe hasło"
+              required
+              autoComplete="new-password"
+            />
+
+            {/* Wskaźnik siły hasła */}
+            {form.password && (
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">Siła hasła:</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        form.password.length < 8
+                          ? "w-1/4 bg-red-500"
+                          : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(
+                              form.password
+                            )
+                          ? "w-2/4 bg-yellow-500"
+                          : form.password.length < 12
+                          ? "w-3/4 bg-blue-500"
+                          : "w-full bg-green-500"
+                      }`}
+                    />
+                  </div>
+                  <span
+                    className={`text-xs font-medium ${
+                      form.password.length < 8
+                        ? "text-red-600"
+                        : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)
+                        ? "text-yellow-600"
+                        : form.password.length < 12
+                        ? "text-blue-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {form.password.length < 8
+                      ? "Słabe"
+                      : !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)
+                      ? "Średnie"
+                      : form.password.length < 12
+                      ? "Dobre"
+                      : "Bardzo dobre"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Przycisk submit */}
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={loading}
+              className="w-full"
             >
-              Wróć do logowania
-            </button>
-          </div>
-        </form>
-      </AuthCard>
+              {loading ? "Zmienianie hasła..." : "Zmień hasło"}
+            </Button>
+
+            {/* Link powrotu */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => router.push("/signin")}
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
+                Wróć do logowania
+              </button>
+            </div>
+          </form>
+        </AuthCard>
+      </Suspense>
     </div>
   );
 }
