@@ -8,12 +8,7 @@ export function middleware(request) {
 
   // Sciezki wymagające autoryzacji
   const protectedPaths = ["/dashboard"];
-  const authPaths = [
-    "/signin",
-    "/signup",
-    "/forgot-password",
-    "/reset-password",
-  ];
+  const authPaths = ["/signin", "/reset-password"];
 
   const { pathname } = request.nextUrl;
 
@@ -31,12 +26,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/signin",
-    "/signup",
-    "/forgot-password",
-    "/reset-password",
-    "/verify-email",
-  ],
+  matcher: ["/dashboard/:path*", "/signin", "/reset-password"],
 };

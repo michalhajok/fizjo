@@ -316,6 +316,20 @@ export const updateUserPermissions = (id, permissions) =>
 export const getAuditLogs = () =>
   request("/api/admin/audit-logs", { method: "GET" });
 
+export const generateResetLink = (userId) => {
+  console.log("Generating reset link for user:", userId);
+
+  return request(`/api/admin/users/${userId}/generate-reset-link`, {
+    method: "POST",
+  });
+};
+
+export const sendResetEmail = (userId, options = {}) =>
+  request(`/api/admin/users/${userId}/send-reset-email`, {
+    method: "POST",
+    body: options, // { customMessage?: string, expiresIn?: string }
+  });
+
 // Pobierz dane pojedynczego użytkownika (GET /api/users/:id)
 export const getUser = (id) => request(`/api/admin/users/${id}`);
 
