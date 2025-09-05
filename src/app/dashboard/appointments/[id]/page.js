@@ -9,6 +9,8 @@ import {
   updateAppointment,
   updateAppointmentStatus,
   signAppointment,
+  getICFAssessment,
+  saveICFAssessment,
 } from "@/lib/api";
 
 import Tabs from "@/components/ui/Tabs";
@@ -24,6 +26,7 @@ import CourseTab from "@/components/appointments/CourseTab";
 import DiagnosesTab from "@/components/appointments/DiagnosesTab";
 import AssessmentScalesTab from "@/components/appointments/AssessmentScalesTab";
 import HistoryTab from "@/components/appointments/HistoryTab";
+import ICFAssessment from "@/components/appointments/ICFAssessment";
 
 const statusColors = {
   scheduled: "blue",
@@ -55,6 +58,7 @@ const tabs = [
   { value: "plan", label: "Plan leczenia" },
   { value: "course", label: "Przebieg" },
   { value: "history", label: "Historia" },
+  { value: "icf_assessment", label: "Ocena ICF" }, // NOWA ZAKŁADKA
 ];
 
 export default function AppointmentDetailPage() {
@@ -64,6 +68,7 @@ export default function AppointmentDetailPage() {
   const [activeTab, setActiveTab] = useState("interview");
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   // Szablon i procedury
@@ -73,6 +78,10 @@ export default function AppointmentDetailPage() {
   useEffect(() => {
     loadAppointment();
     loadProcedures();
+  }, [id]);
+
+  useEffect(() => {
+    loadICF();
   }, [id]);
 
   const loadAppointment = async () => {
@@ -88,6 +97,68 @@ export default function AppointmentDetailPage() {
       setError("Błąd ładowania wizyty");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadICF = async () => {
+    try {
+      // Pobierz ocenę ICF dla tej wizyty
+
+      setLoading2(true);
+      const { data, error } = await getICFAssessment(id);
+
+      if (!error && data?.data) {
+        setAppointment((prev) => ({
+          ...prev,
+          icfAssessment: {
+            completed: data.data.status === "completed",
+            data: data.data, // cała ocena
+            lastUpdated: data.data.updatedAt || new Date().toISOString(),
+            assessmentId: data.data._id,
+          },
+        }));
+      }
+    } catch (err) {
+      console.error("Error loading ICF:", err);
+    } finally {
+      setLoading2(false);
+    }
+  };
+
+  const handleICFSave = async (icfData) => {
+    try {
+      setSaving(true);
+
+      // Wywołaj API zapisujące ocenę ICF
+      const { data, error } = await saveICFAssessment(id, {
+        coreSet: icfData.coreSet,
+        body_functions: icfData.body_functions,
+        body_structures: icfData.body_structures,
+        activities_participation: icfData.activities_participation,
+        environmental_factors: icfData.environmental_factors,
+        assessmentDate: icfData.assessmentDate,
+        additionalNotes: icfData.additionalNotes,
+        status: "completed",
+      });
+
+      if (error) {
+        return;
+      }
+
+      // Zaktualizuj lokalny stan wizyty z nowymi danymi ICF
+      setAppointment((prev) => ({
+        ...prev,
+        icfAssessment: {
+          completed: true,
+          data: icfData,
+          lastUpdated: new Date().toISOString(),
+          assessmentId: data.data._id,
+        },
+      }));
+    } catch (err) {
+      console.error("Błąd zapisu ICF:", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -108,8 +179,6 @@ export default function AppointmentDetailPage() {
       if (error) {
         setError(error);
       } else {
-        console.log("Updated appointment data:", data);
-
         setAppointment(data?.data);
       }
     } catch (err) {
@@ -164,6 +233,14 @@ export default function AppointmentDetailPage() {
   };
 
   if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner size="lg" text="Ładowanie wizyty..." />
+      </div>
+    );
+  }
+
+  if (loading2) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner size="lg" text="Ładowanie wizyty..." />
@@ -354,6 +431,15 @@ export default function AppointmentDetailPage() {
             <HistoryTab
               patientId={appointment?.patient._id}
               appointmentsId={appointment._id}
+            />
+          )}
+          {activeTab === "icf_assessment" && (
+            <ICFAssessment
+              patientId={appointment.patient._id}
+              appointmentId={appointment._id}
+              initialData={appointment.icfAssessment?.data || {}}
+              onSave={handleICFSave}
+              readOnly={appointment.status === "completed"}
             />
           )}
         </Card.Content>

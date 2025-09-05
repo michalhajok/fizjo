@@ -12,6 +12,7 @@ export default function ResetPassword({
     setGeneratingLink(true);
     try {
       const { data, error } = await generateResetLink(user.id);
+      console.log(data, error);
 
       if (error) {
         alert("Błąd generowania linku: " + error);

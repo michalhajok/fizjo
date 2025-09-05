@@ -350,6 +350,35 @@ export const updateEmployeeSchedule = (id, schedule) =>
     body: { schedule },
   });
 
+export const getICFAssessment = (appointmentId) =>
+  request(`/api/icf/appointments/${appointmentId}`, {
+    method: "GET",
+  });
+
+export const saveICFAssessment = (appointmentId, assessment) =>
+  request(`/api/icf/appointments/${appointmentId}/icf`, {
+    method: "POST",
+    body: assessment,
+  });
+
+export const deleteICFAssessment = (appointmentId) =>
+  request(`/api/icf/appointments/${appointmentId}/icf`, {
+    method: "DELETE",
+  });
+
+export const generateICFReport = (appointmentId) =>
+  request(`/api/icf/appointments/${appointmentId}/icf/report`, {
+    method: "GET",
+  });
+
+export const getPatientICFHistory = (patientId, page = 1, limit = 10) =>
+  request(
+    `/api/icf/patients/${patientId}/icf-history?page=${page}&limit=${limit}`,
+    {
+      method: "GET",
+    }
+  );
+
 export const withErrorHandling = (apiFunction) => {
   return async (...args) => {
     try {
@@ -371,3 +400,49 @@ export const withErrorHandling = (apiFunction) => {
     }
   };
 };
+
+// export const ICF_API = {
+//   // Pobierz oceny ICF dla pacjenta
+//   getPatientICFAssessments: (patientId) =>
+//     request(`/api/icf-assessments/patient/${patientId}`, {
+//       method: "GET",
+//     }),
+
+//   // Pobierz konkretną ocenę ICF
+//   getICFAssessment: (assessmentId) =>
+//     request(`/api/icf-assessments/${assessmentId}`, {
+//       method: "GET",
+//     }),
+
+//   // Utwórz nową ocenę ICF
+//   createICFAssessment: (assessmentData) =>
+//     request(`/api/icf-assessments`, {
+//       method: "POST",
+//       body: assessmentData,
+//     }),
+
+//   // Aktualizuj ocenę ICF
+//   updateICFAssessment: (assessmentId, assessmentData) =>
+//     request(`/api/icf-assessments/${assessmentId}`, {
+//       method: "PUT",
+//       body: assessmentData,
+//     }),
+
+//   // Usuń ocenę ICF (tylko draft)
+//   deleteICFAssessment: (assessmentId) =>
+//     request(`/api/icf-assessments/${assessmentId}`, {
+//       method: "DELETE",
+//     }),
+
+//   // Generuj raport ICF
+//   generateICFReport: (assessmentId) =>
+//     request(`/api/icf-assessments/${assessmentId}/report`, {
+//       method: "GET",
+//     }),
+
+//   // Pobierz statystyki Core Sets
+//   getCoreSetStats: () =>
+//     request(`/api/icf-assessments/stats/core-sets`, {
+//       method: "GET",
+//     }),
+// };

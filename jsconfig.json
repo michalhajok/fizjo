@@ -18,7 +18,8 @@
       "@/pages/*": ["./src/pages/*"],
       "@/layouts/*": ["./src/layouts/*"],
       "@/store/*": ["./src/store/*"],
-      "@/api/*": ["./src/api/*"]
+      "@/api/*": ["./src/api/*"],
+      "@/data/*": ["./src/data/*"]
     }
   }
 }
