@@ -363,8 +363,8 @@ export default function AppointmentDetailPage() {
             {appointment.digitalSignature && (
               <div className="text-sm text-green-600">
                 ✓ Podpisano przez{" "}
-                {appointment.digitalSignature.signedBy.firstName}{" "}
-                {appointment.digitalSignature.signedBy.lastName}
+                {appointment.digitalSignature?.signedBy?.firstName}{" "}
+                {appointment.digitalSignature?.signedBy?.lastName}
                 <br />
                 {new Date(appointment.digitalSignature.signedAt).toLocaleString(
                   "pl-PL"
