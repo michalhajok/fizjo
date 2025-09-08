@@ -1,16 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ICF_CATEGORIES,
-  ICF_CORE_SETS,
-  ICF_QUALIFIERS,
-} from "@/data/icfCategories";
+import { ICF_CATEGORIES, ICF_CORE_SETS } from "@/data/icfCategories";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
-import Badge from "@/components/ui/Badge";
 import Tabs from "@/components/ui/Tabs";
 import CategorySection from "./CategorySection";
 
@@ -29,7 +24,7 @@ export default function ICFAssessment({
     activities_participation: {},
     environmental_factors: {},
     additionalNotes: "",
-    assessmentDate: new Date().toISOString().split("T")[0],
+    assessmentDate: new Date(),
     assessor: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
@@ -145,6 +140,8 @@ export default function ICFAssessment({
     }
   };
 
+  console.log("ICF Assessment State:", icfAssessment.assessmentDate);
+
   // Podsumowanie oceny
   const generateICFSummary = () => {
     const summary = {
@@ -186,7 +183,7 @@ export default function ICFAssessment({
   ];
 
   const coreSetOptions = [
-    { value: "", label: "Wybierz Core Set lub utwórz własną ocenę" },
+    { value: "", label: "Wybierz Core Set" },
     { value: "custom", label: "Niestandardowa ocena ICF" },
     ...Object.entries(ICF_CORE_SETS).map(([key, set]) => ({
       value: key,
@@ -239,7 +236,9 @@ export default function ICFAssessment({
               <label className="block mb-1">Data oceny</label>
               <Input
                 type="date"
-                value={icfAssessment.assessmentDate}
+                value={new Date(
+                  icfAssessment.assessmentDate
+                ).toLocaleDateString("sv-se")}
                 onChange={(e) =>
                   setICFAssessment((prev) => ({
                     ...prev,

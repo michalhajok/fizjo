@@ -51,7 +51,7 @@ export default function PlanTab({ appointment, onUpdate }) {
               handleArrayChange("shortTermGoals", e.target.value)
             }
             rows={4}
-            placeholder="Cele na najbliższe 2-4 tygodnie (każdy cel w nowej linii)&#10;Przykład:&#10;- Zmniejszenie bólu o 3 punkty na skali VAS&#10;- Zwiększenie zakresu ruchu w stawie kolanowym o 15°"
+            placeholder="Cele na najbliższe 2-4 tygodnie (każdy cel w nowej linii)"
           />
 
           <Textarea
@@ -59,7 +59,7 @@ export default function PlanTab({ appointment, onUpdate }) {
             value={plan.longTermGoals?.join("\n")}
             onChange={(e) => handleArrayChange("longTermGoals", e.target.value)}
             rows={4}
-            placeholder="Cele końcowe terapii (każdy cel w nowej linii)&#10;Przykład:&#10;- Powrót do pełnej aktywności zawodowej&#10;- Samodzielne poruszanie się bez wsparcia"
+            placeholder="Cele końcowe terapii (każdy cel w nowej linii)"
           />
 
           <Input
@@ -76,7 +76,7 @@ export default function PlanTab({ appointment, onUpdate }) {
               handleChange("functionalTechniques", e.target.value)
             }
             rows={5}
-            placeholder="Szczegółowy opis planowanych technik, ćwiczeń, zabiegów...&#10;Przykład:&#10;- Mobilizacja manualna stawu biodrowego&#10;- Ćwiczenia proprioceptywne&#10;- Trening funkcjonalny chodu"
+            placeholder="Szczegółowy opis planowanych technik, ćwiczeń, zabiegów..."
           />
 
           <Textarea
@@ -84,7 +84,7 @@ export default function PlanTab({ appointment, onUpdate }) {
             value={plan.patientEducation}
             onChange={(e) => handleChange("patientEducation", e.target.value)}
             rows={4}
-            placeholder="Informacje i zalecenia przekazane pacjentowi...&#10;Przykład:&#10;- Ergonomia miejsca pracy&#10;- Zasady aktywności fizycznej&#10;- Profilaktyka urazów"
+            placeholder="Informacje i zalecenia przekazane pacjentowi..."
           />
 
           <Textarea
@@ -92,7 +92,7 @@ export default function PlanTab({ appointment, onUpdate }) {
             value={plan.followUpPlan}
             onChange={(e) => handleChange("followUpPlan", e.target.value)}
             rows={3}
-            placeholder="Harmonogram wizyt kontrolnych, ocena postępów...&#10;Przykład:&#10;- Ocena po 2 tygodniach terapii&#10;- Modyfikacja planu w zależności od postępów"
+            placeholder="Harmonogram wizyt kontrolnych, ocena postępów..."
           />
         </Card.Content>
       </Card>

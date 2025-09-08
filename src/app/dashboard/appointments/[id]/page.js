@@ -24,7 +24,7 @@ import ExaminationsTab from "@/components/appointments/ExaminationsTab";
 import PlanTab from "@/components/appointments/PlanTab";
 import CourseTab from "@/components/appointments/CourseTab";
 import DiagnosesTab from "@/components/appointments/DiagnosesTab";
-import AssessmentScalesTab from "@/components/appointments/AssessmentScalesTab";
+// import AssessmentScalesTab from "@/components/appointments/AssessmentScalesTab";
 import HistoryTab from "@/components/appointments/HistoryTab";
 import ICFAssessment from "@/components/appointments/ICFAssessment";
 
@@ -52,13 +52,13 @@ const statusLabels = {
 
 const tabs = [
   { value: "interview", label: "Wywiad" },
+  { value: "icf_assessment", label: "Ocena ICF" }, // NOWA ZAKŁADKA
   { value: "examinations", label: "Badania" },
-  { value: "scales", label: "Skale oceny" },
+  // { value: "scales", label: "Skale oceny" },
   { value: "diagnoses", label: "Rozpoznania" },
   { value: "plan", label: "Plan leczenia" },
   { value: "course", label: "Przebieg" },
   { value: "history", label: "Historia" },
-  { value: "icf_assessment", label: "Ocena ICF" }, // NOWA ZAKŁADKA
 ];
 
 export default function AppointmentDetailPage() {
@@ -67,6 +67,7 @@ export default function AppointmentDetailPage() {
 
   const [activeTab, setActiveTab] = useState("interview");
   const [appointment, setAppointment] = useState(null);
+  const [icfData, setIcfData] = useState({});
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -108,15 +109,7 @@ export default function AppointmentDetailPage() {
       const { data, error } = await getICFAssessment(id);
 
       if (!error && data?.data) {
-        setAppointment((prev) => ({
-          ...prev,
-          icfAssessment: {
-            completed: data.data.status === "completed",
-            data: data.data, // cała ocena
-            lastUpdated: data.data.updatedAt || new Date().toISOString(),
-            assessmentId: data.data._id,
-          },
-        }));
+        setIcfData(data.data);
       }
     } catch (err) {
       console.error("Error loading ICF:", err);
@@ -389,14 +382,14 @@ export default function AppointmentDetailPage() {
             />
           )}
 
-          {activeTab === "scales" && (
+          {/* {activeTab === "scales" && (
             <AssessmentScalesTab
               appointment={appointment}
               onUpdate={(scales) => {
                 // Implementuj aktualizację skal oceny
               }}
             />
-          )}
+          )} */}
 
           {activeTab === "diagnoses" && (
             <DiagnosesTab
@@ -437,9 +430,11 @@ export default function AppointmentDetailPage() {
             <ICFAssessment
               patientId={appointment.patient._id}
               appointmentId={appointment._id}
-              initialData={appointment.icfAssessment?.data || {}}
+              // initialData={appointment.icfAssessment?.data || {}}
+              initialData={icfData || {}}
               onSave={handleICFSave}
-              readOnly={appointment.status === "completed"}
+              // readOnly={appointment.status === "completed"}
+              readOnly={false}
             />
           )}
         </Card.Content>

@@ -81,7 +81,7 @@ export default function CourseTab({ appointment, procedures = [], onUpdate }) {
               handleChange("activitiesPerformed", e.target.value)
             }
             rows={5}
-            placeholder="Szczegółowy opis wykonanych zabiegów, ćwiczeń, technik...&#10;Przykład:&#10;- Mobilizacja stawu biodrowego - 15 min&#10;- Ćwiczenia wzmacniające mięśnie pośladkowe - 3 serie po 15 powtórzeń&#10;- Terapia manualna kręgosłupa lędźwiowego"
+            placeholder="Szczegółowy opis wykonanych zabiegów, ćwiczeń, technik..."
           />
 
           <Textarea
@@ -89,7 +89,7 @@ export default function CourseTab({ appointment, procedures = [], onUpdate }) {
             value={course.patientResponse}
             onChange={(e) => handleChange("patientResponse", e.target.value)}
             rows={3}
-            placeholder="Obserwacje dotyczące tolerancji zabiegu, bólu podczas ćwiczeń, ogólnego samopoczucia...&#10;Przykład:&#10;- Dobra tolerancja zabiegów&#10;- Zgłaszany ból podczas ćwiczeń na poziomie 3/10 VAS&#10;- Poprawa nastroju, większa motywacja"
+            placeholder="Obserwacje dotyczące tolerancji zabiegu, bólu podczas ćwiczeń, ogólnego samopoczucia..."
           />
 
           {/* Procedury ICD-9 */}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { getPatientAppointments } from "@/lib/api";
 import AuditTimeline from "@/components/ui/AuditTimeline";
+import Link from "next/link";
 
 export default function HistoryTab({ patientId, appointmentsId }) {
   const [appointments, setAppointments] = useState([]);
@@ -63,7 +64,7 @@ export default function HistoryTab({ patientId, appointmentsId }) {
           {appointments.map((appointment) => (
             <div
               key={appointment._id}
-              className="p-4 bg-white rounded-lg shadow"
+              className="p-4 bg-white rounded-lg shadow flex gap-4 justify-between items-center"
             >
               <h3 className="text-md font-semibold mb-2">
                 {" "}
@@ -84,6 +85,15 @@ export default function HistoryTab({ patientId, appointmentsId }) {
               <p className="text-gray-600 mb-2">
                 Status: {getStatusLabel(appointment.status)}
               </p>
+              {appointment.status !== "scheduled" &&
+                appointment.status !== "cancelled" && (
+                  <Link
+                    href={`/dashboard/appointments/${appointment._id}`}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Szczegóły wizyty
+                  </Link>
+                )}
             </div>
           ))}
         </div>
