@@ -51,12 +51,12 @@ export default function AdminDashboardPage() {
       desc: "Role i polityki dostępu",
       color: "purple",
     },
-    {
-      href: "/dashboard/admin/settings",
-      title: "Ustawienia",
-      desc: "Ustawienia globalne systemu",
-      color: "yellow",
-    },
+    // {
+    //   href: "/dashboard/admin/settings",
+    //   title: "Ustawienia",
+    //   desc: "Ustawienia globalne systemu",
+    //   color: "yellow",
+    // },
     {
       href: "/dashboard/admin/audit-logs",
       title: "Rejestr zdarzeń",

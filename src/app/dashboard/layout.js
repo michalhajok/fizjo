@@ -3,7 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 //import MobileDrawer from "./MobileDrawer"; // jeśli już masz
 
 export const metadata = {
-  title: "Dashboard – FizjoCare",
+  title: "Dashboard – FizGab",
   description: "Panel administracyjny",
 };
 

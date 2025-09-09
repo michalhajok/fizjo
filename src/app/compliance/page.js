@@ -368,7 +368,7 @@ export default function CompliancePage() {
                 </p>
                 <p>ul. Przykładowa 123</p>
                 <p>00-000 Warszawa</p>
-                <p>📧 rodo@gabinet.pl</p>
+                <p>📧 rodo@fizgab.pl</p>
                 <p>📞 +48 123 456 789</p>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function CompliancePage() {
               <div className="space-y-2 text-sm">
                 <p>• Osobiście w gabinecie</p>
                 <p>• Pocztą na adres gabinetu</p>
-                <p>• Email na adres: rodo@gabinet.pl</p>
+                <p>• Email na adres: rodo@fizgab.pl</p>
                 <p>• Wniosek musi zawierać dane umożliwiające identyfikację</p>
                 <p>• Dołączyć kopię dokumentu tożsamości</p>
               </div>

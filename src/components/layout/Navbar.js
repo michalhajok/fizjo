@@ -11,7 +11,7 @@ const Navbar = ({ onMenuClick }) => {
     return (
       <aside className="bg-white w-64 border-r border-gray-200 min-h-screen flex flex-col">
         <div className="h-16 flex items-center px-6 font-bold text-blue-600 text-xl border-b border-gray-100">
-          FizjoCare
+          FizGab
         </div>
         <div className="flex-1 flex items-center justify-center">
           <span className="text-gray-400">Ładowanie...</span>

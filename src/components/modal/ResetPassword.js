@@ -46,7 +46,7 @@ export default function ResetPassword({
       const { error } = await sendResetEmail(user.id, {
         customMessage:
           customMessage ||
-          `Witaj ${user.firstName}! Administrator wygenerował dla Ciebie link do ustawienia hasła w systemie FizjoCare.`,
+          `Witaj ${user.firstName}! Administrator wygenerował dla Ciebie link do ustawienia hasła w systemie FizGab.`,
       });
 
       if (error) {

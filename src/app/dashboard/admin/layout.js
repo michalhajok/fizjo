@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Panel administratora – FizjoCare",
+  title: "Panel administratora – FizGab",
   description: "Strona główna sekcji administracyjnej",
 };
 

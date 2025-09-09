@@ -5,7 +5,7 @@
 /verify-email
 
 /dashboard +/-
-/dashboard/admin/settings +/-
+/dashboard/admin/settings -
 /dashboard/documents ?
 /dashboard/examinations ?
 
@@ -18,8 +18,13 @@
 /dashboard/notifications/templates
 /dashboard/messages -->
 
-## /compliance
+(auth)
+/signin √
+/forgot-password √
 
+/compliance
+
+(dashboard)
 /dashboard/admin/users √
 /dashboard/admin/users/[id] √
 /dashboard/admin/services √

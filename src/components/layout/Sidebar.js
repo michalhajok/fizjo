@@ -168,7 +168,7 @@ export default function Sidebar() {
     return (
       <aside className="bg-white w-64 border-r border-gray-200 min-h-screen flex flex-col">
         <div className="h-16 flex items-center px-6 font-bold text-blue-600 text-xl border-b border-gray-100">
-          FizjoCare
+          FizGab
         </div>
         <div className="flex-1 flex items-center justify-center">
           <span className="text-gray-400">Ładowanie...</span>
@@ -180,7 +180,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
       <div className="text-gray-600 px-6 py-4 text-lg font-bold text-medical-primary">
-        FizjoCare
+        FizGab
       </div>
       <nav className="flex-1 px-4 space-y-1">
         {NAV.map(
@@ -208,7 +208,7 @@ export default function Sidebar() {
           Wyloguj
         </button>
         <div className="mt-2 text-xs text-gray-400">
-          © {new Date().getFullYear()} FizjoCare
+          © {new Date().getFullYear()} FizGab
         </div>
       </div>
     </aside>

@@ -85,14 +85,7 @@ export default function ReportsPage() {
                 Potrzebujesz raportu niestandardowego?
               </h3>
               <p className="text-gray-600 text-sm">
-                Skontaktuj się z administratorem lub napisz na{" "}
-                <a
-                  href="mailto:support@twojgabinet.pl"
-                  className="text-blue-600 hover:underline"
-                >
-                  support@twojgabinet.pl
-                </a>
-                .
+                Skontaktuj się z administratorem.
               </p>
             </div>
             <Button

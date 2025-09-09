@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export const metadata = {
-  title: "Uwierzytelnianie - FizjoCare",
+  title: "Uwierzytelnianie - FizGab",
   description: "Zaloguj się do systemu zarządzania gabinetem fizjoterapii",
   robots: "noindex, nofollow",
 };
@@ -15,7 +15,7 @@ const AuthLayout = ({ children }) => {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-12 flex-col justify-center">
         <div className="max-w-md mx-auto">
           <Link href="/" className="text-3xl font-bold mb-8 block">
-            Fizjo<span className="text-blue-200">Care</span>
+            Fiz<span className="text-blue-200">Gab</span>
           </Link>
 
           <h2 className="text-2xl font-semibold mb-4">
@@ -88,7 +88,7 @@ const AuthLayout = ({ children }) => {
           {/* Logo dla mobile */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="text-2xl font-bold text-blue-600">
-              Fizjo<span className="text-blue-800">Care</span>
+              Fiz<span className="text-blue-800">Gab</span>
             </Link>
           </div>
 

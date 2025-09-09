@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export const metadata = {
-  title: "Uwierzytelnianie - FizjoCare",
+  title: "Uwierzytelnianie - FizGab",
   description: "Zaloguj się do systemu zarządzania gabinetem fizjoterapii",
   robots: "noindex, nofollow",
 };

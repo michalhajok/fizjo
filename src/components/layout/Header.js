@@ -7,7 +7,7 @@ const Header = () => (
   <header className="bg-white border-b border-gray-200">
     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
       <Link href="/" className="text-lg font-semibold text-blue-600">
-        Fizjo<span className="font-bold">Care</span>
+        Fiz<span className="font-bold">Gab</span>
       </Link>
 
       <nav className="hidden md:flex space-x-6">
