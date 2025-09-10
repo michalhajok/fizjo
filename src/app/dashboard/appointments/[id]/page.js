@@ -12,6 +12,7 @@ import {
   getICFAssessment,
   saveICFAssessment,
 } from "@/lib/api";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
 
 import Tabs from "@/components/ui/Tabs";
 import Card from "@/components/ui/Card";
@@ -61,7 +62,7 @@ const tabs = [
   { value: "history", label: "Historia" },
 ];
 
-export default function AppointmentDetailPage() {
+function AppointmentDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
@@ -74,6 +75,7 @@ export default function AppointmentDetailPage() {
   const [error, setError] = useState(null);
   // Szablon i procedury
   const [procedures, setProcedures] = useState([]);
+  const toast = useToast();
 
   // Ładowanie danych
   useEffect(() => {
@@ -134,8 +136,10 @@ export default function AppointmentDetailPage() {
         status: "completed",
       });
 
-      if (error) {
-        return;
+      if (data) {
+        toast.success("Zapisano pomyślnie!");
+      } else {
+        toast.error(error || "Błąd zapisu");
       }
 
       // Zaktualizuj lokalny stan wizyty z nowymi danymi ICF
@@ -213,12 +217,15 @@ export default function AppointmentDetailPage() {
       .then(({ data, error }) => {
         if (error) {
           setError(error);
+          toast.error(error || "Błąd zapisu");
         } else {
           setAppointment(data?.data);
+          toast.success("Zapisano pomyślnie!");
         }
       })
       .catch((err) => {
         setError("Błąd aktualizacji wizyty");
+        toast.error(error || "Błąd zapisu");
       })
       .finally(() => {
         setSaving(false);
@@ -441,3 +448,11 @@ export default function AppointmentDetailPage() {
     </div>
   );
 }
+
+const Page = () => (
+  <ToastProvider>
+    <AppointmentDetailPage />
+  </ToastProvider>
+);
+
+export default Page;
