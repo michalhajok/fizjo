@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Raporty – Panel",
+  title: "Raporty – FizGab",
   description: "Wybierz raport do analizy danych gabinetu",
 };
 

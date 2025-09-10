@@ -129,7 +129,7 @@ const DataTable = ({
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-3 cursor-pointer hover:bg-gray-100"
+                  className="px-3 py-3 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort(column.key)}
                 >
                   <div className="flex items-center">
@@ -181,7 +181,7 @@ const DataTable = ({
                 onClick={() => onRowClick && onRowClick(row)}
               >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                  <td key={column.key} className="px-3 py-4 whitespace-nowrap">
                     {column.render
                       ? column.render(row[column.key], row)
                       : row[column.key]}

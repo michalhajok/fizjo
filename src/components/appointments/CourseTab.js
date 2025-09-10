@@ -68,12 +68,12 @@ export default function CourseTab({ appointment, procedures = [], onUpdate }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 block relative">
       <Card>
         <Card.Header>
           <Card.Title>Przebieg leczenia</Card.Title>
         </Card.Header>
-        <Card.Content className="space-y-4">
+        <Card.Content className="space-y-4 w-full">
           <Textarea
             label="Wykonane czynności terapeutyczne"
             value={course.activitiesPerformed}

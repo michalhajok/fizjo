@@ -265,33 +265,34 @@ export default function CalendarPage() {
                           {apt.notes}
                         </span>
                       )}
-
-                      {canCancelAppointment(apt) && (
-                        <button
-                          onClick={() =>
-                            setCancelModal({
-                              open: true,
-                              appointment: apt,
-                            })
-                          }
-                          className="text-red-600 hover:underline text-sm"
-                        >
-                          Anuluj
-                        </button>
-                      )}
-                      {apt.status === "scheduled" && (
-                        <button
-                          className="text-yellow-600 hover:underline text-sm"
-                          onClick={() =>
-                            setRescheduleModal({
-                              open: true,
-                              appointment: apt,
-                            })
-                          }
-                        >
-                          Zmień termin
-                        </button>
-                      )}
+                      <div className="flex space-x-3">
+                        {canCancelAppointment(apt) && (
+                          <button
+                            onClick={() =>
+                              setCancelModal({
+                                open: true,
+                                appointment: apt,
+                              })
+                            }
+                            className="text-red-600 hover:underline text-sm"
+                          >
+                            Anuluj
+                          </button>
+                        )}
+                        {apt.status === "scheduled" && (
+                          <button
+                            className="text-yellow-600 hover:underline text-sm"
+                            onClick={() =>
+                              setRescheduleModal({
+                                open: true,
+                                appointment: apt,
+                              })
+                            }
+                          >
+                            Zmień termin
+                          </button>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

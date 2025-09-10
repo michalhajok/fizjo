@@ -264,9 +264,9 @@ export default function AppointmentDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="p-6 space-y-6 flex flex-wrap align-start content-start">
       {/* Header wizyty */}
-      <Card>
+      <Card className="basis-full h-fit">
         <Card.Content>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
@@ -308,7 +308,7 @@ export default function AppointmentDetailPage() {
       </Card>
 
       {/* Pasek akcji */}
-      <Card>
+      <Card className="basis-full h-fit">
         <Card.Content>
           <div className="flex flex-wrap gap-2">
             {/* Przyciski zmiany statusu */}
@@ -369,12 +369,12 @@ export default function AppointmentDetailPage() {
       </Card>
 
       {/* Zakładki */}
-      <Card>
+      <Card className="basis-full">
         <div className="border-b">
           <Tabs value={activeTab} onChange={setActiveTab} tabs={tabs} />
         </div>
 
-        <Card.Content>
+        <Card.Content className="relative">
           {activeTab === "interview" && (
             <InterviewTab
               appointment={appointment}
@@ -430,11 +430,10 @@ export default function AppointmentDetailPage() {
             <ICFAssessment
               patientId={appointment.patient._id}
               appointmentId={appointment._id}
-              // initialData={appointment.icfAssessment?.data || {}}
               initialData={icfData || {}}
               onSave={handleICFSave}
-              // readOnly={appointment.status === "completed"}
-              readOnly={false}
+              readOnly={appointment.status === "completed"}
+              // readOnly={false}
             />
           )}
         </Card.Content>

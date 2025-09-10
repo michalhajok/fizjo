@@ -206,11 +206,6 @@ export default function ICFAssessment({
                 Holistyczna ocena funkcjonowania pacjenta według standardów WHO
               </p>
             </div>
-            {!readOnly && (
-              <Button onClick={handleSave} disabled={!icfAssessment}>
-                Zapisz ocenę ICF
-              </Button>
-            )}
           </div>
         </Card.Header>
         <Card.Content>
@@ -341,6 +336,13 @@ export default function ICFAssessment({
             searchTerm={searchTerm}
             readOnly={readOnly}
           />
+        )}
+      </div>
+      <div className="flex justify-end">
+        {!readOnly && (
+          <Button onClick={handleSave} disabled={!icfAssessment}>
+            Zapisz ocenę ICF
+          </Button>
         )}
       </div>
     </div>

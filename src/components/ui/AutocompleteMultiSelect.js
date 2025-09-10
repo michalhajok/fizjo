@@ -16,8 +16,8 @@ export default function AutocompleteMultiSelect({
     : options;
 
   return (
-    <div>
-      {label && <label className="block font-medium mb-1">{label}</label>}
+    <div className="block object-fill">
+      {label && <label className=" font-medium mb-1">{label}</label>}
       <input
         type="text"
         value={search}
@@ -29,7 +29,7 @@ export default function AutocompleteMultiSelect({
         {filtered.map((opt) => (
           <div
             key={opt.value}
-            className={`px-2 py-1 cursor-pointer flex items-center ${
+            className={`px-2 py-1 cursor-pointer flex w-full items-center ${
               value.find((v) => v.value === opt.value)
                 ? "bg-blue-100"
                 : "hover:bg-gray-50"

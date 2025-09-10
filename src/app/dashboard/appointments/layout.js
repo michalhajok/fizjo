@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Wizyty – Panel",
+  title: "Wizyty – FizGab",
   description: "Lista wszystkich zaplanowanych i zakończonych wizyt.",
 };
 
