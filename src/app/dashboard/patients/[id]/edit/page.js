@@ -312,11 +312,11 @@ export default function EditPatientPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Status:</span>
               <Select
-                value={form.isActive}
+                value={statusOptions.find((e) => e.value === form.isActive)}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
-                    isActive: e.target.value === "true",
+                    isActive: e.value,
                   }))
                 }
                 options={statusOptions}
@@ -398,9 +398,11 @@ export default function EditPatientPage() {
                 />
                 <Select
                   label="Płeć *"
-                  value={form.personalInfo.gender}
+                  value={genderOptions.find(
+                    (e) => e.value === form.personalInfo.gender
+                  )}
                   onChange={(e) =>
-                    handleInputChange("personalInfo", "gender", e.target.value)
+                    handleInputChange("personalInfo", "gender", e.value)
                   }
                   options={genderOptions}
                   error={errors["personalInfo.gender"]}

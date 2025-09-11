@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const accessToken = localStorage.getItem("accessToken");
-    if (accessToken && !user) {
+    if (accessToken && !user && !loading) {
       setLoading(true);
       verifyToken().then(({ data, error }) => {
         if (data?.user) {
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       });
     }
-  }, [user]);
+  }, [user, loading]);
 
   // 3. Logowanie
   const login = async (dataForm) => {

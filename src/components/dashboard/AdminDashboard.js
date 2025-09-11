@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks";
-import { createUser, getUsers } from "@/lib/api";
+import { getUsers } from "@/lib/api";
 
 import DataTable from "@/ui/DataTable";
 import Spinner from "@/components/ui/Spinner";
@@ -13,8 +13,6 @@ import AddUser from "../modal/AddUser";
 export default function AdminDashboard() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-  // const [userFormError, setUserFormError] = useState(null);
-  // const [submittingUser, setSubmittingUser] = useState(false);
   const [resetModal, setResetModal] = useState({ open: false, user: null });
   const [generatingLink, setGeneratingLink] = useState(false);
 
@@ -33,39 +31,6 @@ export default function AdminDashboard() {
     { value: "receptionist", label: "Recepcjonista" },
     // { value: "assistant", label: "Asystent" },
   ];
-
-  // const handleUserSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setUserFormError(null);
-  //   setSubmittingUser(true);
-  //   const userData = {
-  //     ...userForm,
-  //     permissions: defaultRolePermissions[userForm.role] || [],
-  //   };
-  //   const { data, error } = await createUser(userData);
-  //   setSubmittingUser(false);
-  //   if (error) {
-  //     setUserFormError(error);
-  //   } else {
-  //     setIsUserModalOpen(false);
-  //     setUserForm({
-  //       firstName: "",
-  //       lastName: "",
-  //       email: "",
-  //       role: "physiotherapist",
-  //       password: "",
-  //     });
-  //   }
-  // };
-  // const handleUserRoleChange = (option) => {
-  //   setUserForm((prev) => ({ ...prev, role: option.value }));
-  // };
-
-  // const handleUserFormChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setUserForm((prev) => ({ ...prev, [name]: value }));
-  //   setUserFormError(null);
-  // };
 
   if (loadingUsers || authLoading) {
     return (

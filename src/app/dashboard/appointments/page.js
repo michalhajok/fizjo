@@ -258,13 +258,13 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <div className="space-y-2 p-2">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+    <div className="space-y-2 p-2 flex flex-wrap align-start content-start">
+      <div className="flex md:items-center md:justify-between gap-2 justify-content-between basis-full p-4">
         <h1 className="text-2xl font-bold text-gray-700">Wizyty</h1>
         <Button onClick={() => setIsModalOpen(true)}>Dodaj wizytę</Button>
       </div>
 
-      <Card>
+      <Card className="basis-full">
         <Card.Content>
           {/* Filtry górne */}
           <div className="flex flex-col md:flex-row gap-2 mb-4">

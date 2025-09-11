@@ -1,42 +1,67 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import Card from "@/components/ui/Card";
 import Calendar from "@/components/ui/Calendar";
 import { useAuth } from "@/hooks";
 import useApiFetch from "@/hooks/useApiFetch";
-import { getPatients, getTodayAppointments, getWeeklyStats } from "@/lib/api";
+import {
+  getPatients,
+  getWeeklyStats,
+  getStatsPhysiotherapist,
+  getEmployee,
+} from "@/lib/api";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const [physiotherapist, setPhysiotherapist] = useState({});
 
   const { data: patientsData, loading: loadingPatients } = useApiFetch(
     getPatients,
     [],
-    false
+    true
   );
-  const { data: todayData, loading: loadingToday } = useApiFetch(
-    getTodayAppointments,
-    [],
-    false
-  );
+
   const { data: statsData, loading: loadingStats } = useApiFetch(
     getWeeklyStats,
     [],
-    false
+    true
   );
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) router.replace("/signin");
   }, [authLoading, isAuthenticated, router]);
 
-  const patients = patientsData?.patients || [];
-  const today = todayData?.appointments || [];
-  const { total = 0, active = 0, completed = 0, pending = 0 } = statsData || {};
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "physiotherapist") {
+        Promise.all([getEmployee(user?._id)])
+          .then(([empRes]) => {
+            if (empRes.data) {
+              Promise.all([
+                getStatsPhysiotherapist(empRes.data.data?._id),
+              ]).then(([staRes]) => {
+                setPhysiotherapist(staRes?.data.data.grouped);
+              });
+            }
+          })
+          .catch((err) => {
+            console.error("Error loading  data:", err);
+            setError("Błąd ładowania danych ");
+          });
+      }
+    }
+  }, [user]);
+
+  console.log(physiotherapist);
+
+  const patients = patientsData?.data || [];
+  const { total, upcoming, completed, pending, cancelled } =
+    statsData?.data?.grouped || {};
 
   if (authLoading) {
     return (
@@ -51,7 +76,9 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-700">
             Witaj, {user.firstName}!
           </h1>
-          <p className="text-gray-600">Rola: {user.role}</p>
+          <p className="text-gray-600">
+            Rola: {user.role.charAt(0).toUpperCase() + user.role.substring(1)}
+          </p>
         </header>
 
         {/* Wspólne statystyki */}
@@ -63,29 +90,32 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-3xl">{patients.length}</div>
               )}
-              <div>Pacjenci</div>
+              <div>Pacjenci ogółem</div>
             </Card.Content>
           </Card>
           <Card>
             <Card.Content className="text-center">
-              {loadingToday ? (
-                <Spinner size="sm" />
-              ) : (
-                <div className="text-3xl">{today.length}</div>
-              )}
+              <div className="text-3xl">{total}</div>
+
               <div>Wizyty dziś</div>
             </Card.Content>
           </Card>
           <Card>
             <Card.Content className="text-center">
-              <div className="text-3xl">{active}</div>
-              <div>Aktywni</div>
+              <div className="text-3xl">{upcoming}</div>
+              <div>Zaplanowane</div>
             </Card.Content>
           </Card>
           <Card>
             <Card.Content className="text-center">
               <div className="text-3xl">{completed}</div>
               <div>Zakończone</div>
+            </Card.Content>
+          </Card>
+          <Card>
+            <Card.Content className="text-center">
+              <div className="text-3xl">{cancelled}</div>
+              <div>Anulowane</div>
             </Card.Content>
           </Card>
         </section>
@@ -99,16 +129,17 @@ export default function DashboardPage() {
               <h2 className="text-xl font-semibold mb-4 text-gray-700">
                 Kalendarz
               </h2>
-              <Calendar selectedDate={new Date()} appointments={today} />
+              <Calendar selectedDate={new Date()} appointments={[]} />
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-700">
                 Twoje sesje
               </h2>
               <ul className="space-y-2 text-gray-700">
-                <li>Aktywne: {today.length}</li>
-                <li>Zakończone: {completed}</li>
-                <li>Oczekujące: {pending}</li>
+                <li>Wszystkie: {physiotherapist?.total}</li>
+                <li>Oczekujące: {physiotherapist?.upcoming}</li>
+                <li>Zakończone: {physiotherapist?.completed}</li>
+                <li>Anulowane: {physiotherapist?.cancelled}</li>
               </ul>
             </div>
           </section>

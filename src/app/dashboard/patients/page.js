@@ -229,8 +229,8 @@ export default function PatientsPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="space-y-6 p-6  flex flex-wrap align-start content-start">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 basis-full">
         <div>
           <h1 className="text-2xl font-bold text-gray-700">Pacjenci</h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -244,7 +244,7 @@ export default function PatientsPage() {
       </div>
 
       {/* Filtry */}
-      <Card>
+      <Card className="basis-full">
         <Card.Content>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 max-w-md">
@@ -276,7 +276,7 @@ export default function PatientsPage() {
       </Card>
 
       {/* Tabela pacjentów */}
-      <Card>
+      <Card className="basis-full">
         <Card.Content>
           {patients.length === 0 && !loading ? (
             <div className="text-center py-8">
@@ -301,44 +301,6 @@ export default function PatientsPage() {
           )}
         </Card.Content>
       </Card>
-
-      {/* Modal potwierdzenia usunięcia
-      <Modal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, patient: null })}
-        title="Usuń pacjenta"
-      >
-        <div className="space-y-4 text-gray-700">
-          <p>
-            Czy na pewno chcesz usunąć pacjenta{" "}
-            <strong>
-              {deleteModal.patient?.personalInfo?.firstName}{" "}
-              {deleteModal.patient?.personalInfo?.lastName}
-            </strong>
-            ?
-          </p>
-          <p className="text-sm text-red-600">
-            ⚠️ Ta operacja jest nieodwracalna. Wszystkie dane pacjenta zostaną
-            usunięte.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setDeleteModal({ open: false, patient: null })}
-              disabled={deleting}
-            >
-              Anuluj
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDeletePatient}
-              disabled={deleting}
-            >
-              {deleting ? <Spinner size="sm" /> : "Usuń pacjenta"}
-            </Button>
-          </div>
-        </div>
-      </Modal> */}
     </div>
   );
 }

@@ -96,19 +96,18 @@ async function request(
 export const signIn = async (body) => {
   const result = await request("/api/auth/login", { method: "POST", body });
 
-  if (result.data.data && result.data.data.tokens) {
+  if (result.data && result.data.success && result.data.data) {
     localStorage.setItem("accessToken", result.data.data.tokens.accessToken);
     localStorage.setItem("user", JSON.stringify(result.data.data.user));
-    if (result.data.refreshToken) {
+    if (result.data.data.tokens.refreshToken) {
       localStorage.setItem(
         "refreshToken",
         result.data.data.tokens.refreshToken
       );
     }
-    return {
-      data: result.data.data,
-      error: null,
-    };
+    return { data: result.data.data, error: null };
+  } else {
+    return { data: null, error: result.error || "Login failed" };
   }
 };
 
@@ -175,7 +174,8 @@ export const getPhysiotherapists = () =>
 // APPOINTMENTS
 export const getAppointments = () => request("/api/appointments");
 
-export const getTodayAppointments = () => request("/api/appointments/today");
+export const getStatsPhysiotherapist = (id) =>
+  request(`/api/appointments/stats/${id}`);
 
 export const getAppointment = (id) =>
   request(`/api/appointments/${id}`, { method: "GET" });
@@ -266,7 +266,7 @@ export const deleteAttachment = (appointmentId, attachmentId) =>
 export const getIcd9Procedures = () => request(`/api/icd9`);
 
 // STATS
-export const getWeeklyStats = () => request("/api/stats/weekly");
+export const getWeeklyStats = () => request("/api/appointments/stats/");
 
 // ADMIN
 export const createUser = (body) =>
